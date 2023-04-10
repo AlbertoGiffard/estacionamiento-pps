@@ -1,0 +1,123 @@
+@import '../../App.css';
+
+.accordion {
+    --bs-accordion-bg: transparent;
+}
+
+.bg-formulario {
+    background-color: rgb(131, 135, 138);
+    font-size: 2rem;
+    align-items: center;
+    text-align: center;
+}
+
+.bg-image-cliente {
+    background-image: url('https://images.pexels.com/photos/7980891/pexels-photo-7980891.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    padding: 0 !important;
+    margin: 0 !important;
+    background-color: var(--ColorPrimario);
+    position: absolute;
+    top: -100px;
+    right: 0px;
+    bottom: -5px;
+    left: 0;
+    border-radius: 40px;
+    box-shadow: 0 0 20px 20px rgba(0, 0, 0, 0.5) inset;
+}
+
+.bg-secundario {
+    background-color: var(--ColorSecundario);
+    margin: 0 10px;
+    border-color: black !important;
+}
+
+.bg-seccion-principal {
+    height: 40rem;
+}
+
+.bg-sitio {
+    background-image: linear-gradient(110deg, var(--ColorPrimario) 52%, var(--ColorTerciario) 65%);
+}
+
+.btn-ingresar{
+    border-color: black !important
+}
+
+.btn-more-lg {
+    width: 10rem;
+    font-size: large;
+}
+
+.fw-medium {
+    font-size: large;
+}
+
+.lg-icon {
+    font-size: 4rem;
+}
+
+.img-inicio {
+    width: 5rem;
+}
+
+.margin-bottom-md {
+    margin-bottom: 2rem;
+}
+
+.margin-right {
+    margin-right: 10rem;
+}
+
+.margin-right-md {
+    margin-right: 1rem;
+}
+
+.margin-left-sm {
+    margin-left: 5px;
+}
+
+.mapa {
+    height: 30rem;
+    width: 52rem;
+    background-color: rgb(124, 126, 128);
+}
+
+.scrolleable-list {
+    max-height: 30rem;
+    overflow-y: auto;
+    border: solid 1px black;
+}
+
+.text-md {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.text-sm {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.text-justify{
+    text-align: justify;
+}
+
+.blur-bg {
+    background-color: rgb(226 218 218 / 20%);
+    backdrop-filter: blur(5px) opacity(0.8);
+    -webkit-backdrop-filter: blur(5px) opacity(0.8);
+    /* Para soporte en Safari */
+}
+
+/* .search-bar{
+    max-width: 55rem;
+}
+ */
+/* Esto siempre al final */
+
+::-webkit-scrollbar {
+    display: none;
+}
