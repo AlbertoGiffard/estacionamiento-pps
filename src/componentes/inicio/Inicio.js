@@ -54,7 +54,7 @@ function Inicio() {
                     </div>
                     <div className="text-center py-2 pb-5">
                         <span className="display-6">
-                            Más Estacionamiento
+                            Multi Espacios
                         </span>
                     </div>
                     <div className="text-center d-grid gap-2 col-6 mx-auto">
