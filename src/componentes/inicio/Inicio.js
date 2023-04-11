@@ -1,6 +1,8 @@
 import './Inicio.css'
 import React, { Fragment } from 'react'
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import GoogleMap from '../googleMap/GoogleMap';
+import AltaEstacionamiento from '../estacionamiento/forms/AltaEstacionamiento';
 
 function Inicio() {
     return (
@@ -54,7 +56,7 @@ function Inicio() {
                     </div>
                     <div className="text-center py-2 pb-5">
                         <span className="display-6">
-                            Multi Espacios
+                            Park Me Now
                         </span>
                     </div>
                     <div className="text-center d-grid gap-2 col-6 mx-auto">
@@ -77,10 +79,8 @@ function Inicio() {
                     </div>
                 </div>
                 <div className="container d-flex container-mapa justify-content-around text-center my-3">
-                    <div className="mapa py-3 margin-right-md">
-                        <span className="display-1 ">
-                            MAPA
-                        </span>
+                    <div className="mapa py-3 pt-0 margin-right-md">
+                        <GoogleMap />
                     </div>
                     <div>
                         <div className=''>
@@ -260,8 +260,8 @@ function Inicio() {
                             </div>
 
                         </div>
-                        <div class="col-md-6 mb-3 bg-formulario">
-                            FORMULARIO
+                        <div class="col-md-6 mb-3 border-start border-dark">
+                            <AltaEstacionamiento/>
                         </div>
                     </div>
                 </div>

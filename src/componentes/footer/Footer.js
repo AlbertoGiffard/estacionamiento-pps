@@ -23,7 +23,7 @@ function Footer() {
             </div> */}
             <div class="footer-bottom text-center">
                 <img src="http://www.logobook.com/wp-content/uploads/2016/10/Messaggeria_Emiliana_logo.svg" alt="Logo" class="d-inline-block align-text-center img" />
-                <p>&copy; 2023 Multi Espacios. Todos los derechos reservados.</p>
+                <p>&copy; 2023 Park Me Now. Todos los derechos reservados.</p>
             </div>
         </footer>
     )

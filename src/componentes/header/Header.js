@@ -9,7 +9,7 @@ function Header() {
                     <a class="navbar-brand d-flex align-text-center align-items-center">
                         <img src="http://www.logobook.com/wp-content/uploads/2016/10/Messaggeria_Emiliana_logo.svg" alt="Logo" class="d-inline-block align-text-center img" />
                         <span class='ml-3 text-center'>
-                            Multi Espacios
+                            Park Me Now
                         </span>
                     </a>
                     <nav class="navbar navbar-expand-lg bg-body-tertiary">
