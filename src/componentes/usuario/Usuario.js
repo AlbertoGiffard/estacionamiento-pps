@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { v4 as uuid } from 'uuid';
+import Firebase from '../firebase/Firebase';
+
 
 const StatusUsuario = {
     ACTIVO: 'ACTIVO',
@@ -62,51 +64,123 @@ class Usuario extends Component {
     modificarStatus = (status) => {
         switch (status) {
             case 'activo':
-                this.setState({ status: StatusUsuario.ACTIVO});
+                this.setState({ status: StatusUsuario.ACTIVO });
                 break;
 
             case 'inactivo':
-                this.setState({ status: StatusUsuario.INACTIVO});
+                this.setState({ status: StatusUsuario.INACTIVO });
                 break;
 
             case 'lista_negra':
-                this.setState({ status: StatusUsuario.LISTA_NEGRA});
+                this.setState({ status: StatusUsuario.LISTA_NEGRA });
                 break;
 
             default:
-                this.setState({ status: StatusUsuario.SIN_SUSCRIPCION});
+                this.setState({ status: StatusUsuario.SIN_SUSCRIPCION });
                 break;
         }
 
     }
 
     /* Sobrescribe todos los campos, aca la idea seria que si solo modifica el email por ejemplo,  
-    los demas campos sean los mismos, es decir pasarle los mismos datos que ya tenia */    
+    los demas campos sean los mismos, es decir pasarle los mismos datos que ya tenia */
     modificarCampos = (email, contrasenia, telefono, foto) => {
-        this.setState({ 
-            email: email, 
-            contrasenia: contrasenia, 
-            telefono: telefono, 
+        this.setState({
+            email: email,
+            contrasenia: contrasenia,
+            telefono: telefono,
             foto: foto
         });
     }
-    
-    /* iniciarSesion(email, contrasenia) */
-    /* validarEmail(email) */
-    /* cerrarSesion() */
-    /* registrarse() */
 
-    render() {
+    //el iniciar sesion si fue exitosa debe redirigir
+    iniciarSesion = (email, contrasenia) => {
+        evento.preventDefault();
+
+        const { email, contrasenia } = this.state;
+        const firebase = new Firebase();
+        let resultado = false;
+
+        firebase.iniciarSesion(email, contrasenia)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                console.log("Inicio de sesión exitoso para el usuario:", email);
+                resultado = true;
+                // Aquí deberia ver un redireccionamiento
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.error(errorMessage);
+            });
+
+        return resultado;
+    }
+    
+    cerrarSesion = () => {
+        const firebase = new Firebase();
+
+        firebase.cerrarSesion()
+            .then(() => {
+                // La sesión se cerró correctamente, redirecciona
+            })
+            .catch((error) => {
+                console.error("Error al cerrar sesión:", error);
+            });
+    }
+
+    //realiza el registro de nuevos usuarios y los carga a la base de datos
+    //el .then nos hará saber a donde se llame esta operacion si fue ok o no
+    registrarse = (evento) => {
+        evento.preventDefault();
+
+        const { idUsuario, nombre, apellido, dni, email, contrasenia, telefono, direccion, rol, fechaAlta, foto, idEstacionamiento, status } = this.state;
+        const firebase = new Firebase();
+        let resultado = false;
+
+        if (firebase.verificarMail(email)) {
+            firebase.registrarse(email, contrasenia)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    const uid = user.uid;
+
+                    firebase.crearUsuarioDB(uid, 'usuarios', {
+                        uid,
+                        idUsuario,
+                        nombre,
+                        apellido,
+                        dni,
+                        email,
+                        contrasenia,
+                        telefono,
+                        direccion,
+                        rol,
+                        fechaAlta,
+                        foto,
+                        idEstacionamiento,
+                        status
+                    });
+
+                    resultado = true;
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    console.error(errorMessage);
+                });
+        }
+
+        return resultado;
+    };
+
+    /* render() {
         // Código JSX para renderizar el componente
         return (
             <div>
-                <p>Atributo 1: {this.state.atributo1}</p>
-                <p>Atributo 2: {this.state.atributo2}</p>
-                <p>Resultado operación 1: {this.operacion1()}</p>
-                <p>Resultado operación 2: {this.operacion2(5)}</p>
+                <p>Dato</p>
             </div>
         );
-    }
+    } */
 }
 
 export default Usuario;
