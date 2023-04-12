@@ -252,7 +252,7 @@ function Inicio() {
                                     <div id="flush-collapseFour" class="accordion-collapse collapse" data-bs-parent="#acordeonPreguntasDuenio">
                                         <div class="accordion-body">
                                             <span className="text-sm">
-                                                Justo a la derecha tienes el formulario donde evaluaremos tu caso y te haremos llegar nuestra respuesta. Adelante estas a tan solo un paso de formar parte de la red de clientes de estacionamientomás grande que hay.
+                                                Adelante estas a tan solo un paso de formar parte de la red de clientes de estacionamiento más grande que hay. Justo a la derecha tienes el formulario donde evaluaremos tu caso y te haremos llegar nuestra respuesta.
                                             </span>
                                         </div>
                                     </div>
@@ -261,7 +261,7 @@ function Inicio() {
 
                         </div>
                         <div class="col-md-6 mb-3 border-start border-dark">
-                            <AltaEstacionamiento/>
+                            <AltaEstacionamiento />
                         </div>
                     </div>
                 </div>
