@@ -79,7 +79,6 @@ class Usuario extends Component {
                 this.setState({ status: StatusUsuario.SIN_SUSCRIPCION });
                 break;
         }
-
     }
 
     /* Sobrescribe todos los campos, aca la idea seria que si solo modifica el email por ejemplo,  

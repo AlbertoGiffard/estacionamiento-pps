@@ -60,8 +60,6 @@ class Vehiculo extends Component {
     validarStatus = () => {
         let resultado = null;
         const firebase = new Firebase();
-        const vehiculosRef = database.ref('vehiculos');
-        const vehiculosUsuarioRef = vehiculosRef.orderByChild('Usuario/idUsuario').equalTo('123');
 
         firebase.obtenerCantidadFilas('vehiculos', 'idUsuario', this.state.usuario.idUsuario)
             .then((cantidad) => {
@@ -77,6 +75,39 @@ class Vehiculo extends Component {
                 const errorMessage = error.message;
                 console.error(errorMessage);
             });
+    }
+
+
+    modificarStatus = (status) => {
+        let resultado = true;
+
+        switch (status) {
+            case 'activo':
+                //valida que no tenga ya 3 vehiculos activos
+                if (this.validarStatus() == StatusVehiculo.ACTIVO) {
+                    this.setState({ status: StatusVehiculo.ACTIVO });
+                } else {
+                    resultado = false;
+                }
+                break;
+
+            case 'inactivo':
+                this.setState({ status: StatusVehiculo.INACTIVO });
+                break;
+
+            default:
+                this.setState({ status: StatusVehiculo.EN_PUESTO });
+                break;
+        }
+
+        return resultado;
+    }
+
+    //suma una reserva al vehiculo no importa el status final de la reserva, se suma al contador del vehiculo
+    sumarReserva = () => {
+        let total = this.state.totalReservas++;
+
+        this.setState({ totalReservas: total });
     }
 
 }
