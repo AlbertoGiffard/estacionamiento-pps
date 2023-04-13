@@ -116,7 +116,7 @@ class Usuario extends Component {
 
         return resultado;
     }
-    
+
     cerrarSesion = () => {
         const firebase = new Firebase();
 
@@ -172,6 +172,62 @@ class Usuario extends Component {
 
         return resultado;
     };
+
+    obtenerUsuarios = () => {
+        const { idUsuario, nombre, apellido, dni, email, contrasenia, telefono, direccion, rol, fechaAlta, foto, idEstacionamiento, status } = this.state;
+        const firebase = new Firebase();
+        let resultado = false;
+
+        firebase.obtenerTodosEnDB('usuarios')
+            .then((data) => {
+                const usuarios = data.val();
+
+                // Recorremos cada usuario y mostramos sus datos en la consola
+                Object.keys(usuarios).map((key) => {
+                    const usuario = usuarios[key];
+                    console.log(usuario.idUsuario, usuario.nombre, usuario.apellido, usuario.dni, usuario.email, usuario.contrasenia, usuario.telefono, usuario.direccion, usuario.rol, usuario.fechaAlta, usuario.foto, usuario.idEstacionamiento, usuario.status);
+                });
+
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.error(errorMessage);
+            });
+
+        return resultado;
+    }
+
+    //este nos servirá para traer un usuario en particular, por el idUsuario por ejemplo
+    //como por ejemplo los que esten en lista negra
+    obtenerUsuariosPorCampo = (filtro) => {
+        const firebase = new Firebase();
+        let resultado = false;
+
+        firebase.obtenerValorEnDB(`usuarios/${filtro}`)
+            .then((data) => {
+                const usuarios = data.val();
+
+                // validamos que existan datos
+                if (usuarios) {
+                    // Recorremos cada usuario y mostramos sus datos en la consola
+                    Object.keys(usuarios).map((key) => {
+                        const usuario = usuarios[key];
+                        //aca puede haber un redireccionamiento con los datos
+                        console.log(usuario.idUsuario, usuario.nombre, usuario.apellido, usuario.dni, usuario.email, usuario.contrasenia, usuario.telefono, usuario.direccion, usuario.rol, usuario.fechaAlta, usuario.foto, usuario.idEstacionamiento, usuario.status);
+                        resultado = true;
+                    });
+                }
+
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.error(errorMessage);
+            });
+
+        return resultado;
+    }
 
     /* render() {
         // Código JSX para renderizar el componente

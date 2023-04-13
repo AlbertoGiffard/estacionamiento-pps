@@ -53,19 +53,23 @@ class Firebase {
 
   // Métodos de base de datos
   //el parametro tabla nos indica que tabla debe utilizar, ejemplo (usuarios, vehiculos, etc)
-  crearUsuarioDB = (uid, tabla, data) => {
+  crearEnDB = (uid, tabla, data) => {
     return this.database.ref(`${tabla}/${uid}`).set(data);
   };
 
-  obtenerUsuarioDB = (uid, tabla) => {
-    return this.database.ref(`${tabla}/${uid}`).once('value');
+  //esta funcion puede traer un valor o todos, ejemplos
+  //todos: tabla = usuarios
+  //uno: tabla = usuarios/1234AABH
+  //en este ultimo caso traera solo el campo que haga match
+  obtenerValorEnDB = (tabla) => {
+    return this.database.ref(`${tabla}`).once('value');
   };
 
-  actualizarUsuarioDB = (uid, tabla, data) => {
+  actualizarEnDB = (uid, tabla, data) => {
     return this.database.ref(`${tabla}/${uid}`).update(data);
   };
 
-  borrarUsuario = (uid, tabla) => {
+  borrarEnDB = (uid, tabla) => {
     return this.database.ref(`${tabla}/${uid}`).remove();
   };
 }
