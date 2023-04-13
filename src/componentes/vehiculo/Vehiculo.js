@@ -16,6 +16,7 @@ const StatusVehiculo = {
     EN_PUESTO: 'EN_PUESTO'
 };
 
+//Falta aca que guarde el nuevo vehiculo en la DB !!!!!!!!!!!!!!!
 class Vehiculo extends Component {
     constructor(props) {
         super(props);

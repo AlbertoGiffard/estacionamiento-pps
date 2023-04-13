@@ -27,6 +27,15 @@ class Usuario extends Component {
             dni: props.dni,
             email: props.email,
             contrasenia: props.contrasenia,
+            datosTarjeta: props.datosTarjeta, //Este dato sera un object
+            /* 
+                datosTarjeta: {
+                    nombreTitular,
+                    numero,
+                    fechaVencimiento,
+                    codSeguridad
+                }
+            */
             telefono: props.telefono,
             direccion: props.direccion,
             rol: verificarRol(props.rol),
@@ -83,12 +92,13 @@ class Usuario extends Component {
 
     /* Sobrescribe todos los campos, aca la idea seria que si solo modifica el email por ejemplo,  
     los demas campos sean los mismos, es decir pasarle los mismos datos que ya tenia */
-    modificarCampos = (email, contrasenia, telefono, foto) => {
+    modificarCampos = (email, contrasenia, telefono, foto, datosTarjeta) => {
         this.setState({
             email: email,
             contrasenia: contrasenia,
             telefono: telefono,
-            foto: foto
+            foto: foto,
+            datosTarjeta: datosTarjeta
         });
     }
 
@@ -133,7 +143,7 @@ class Usuario extends Component {
     registrarse = (evento) => {
         evento.preventDefault();
 
-        const { idUsuario, nombre, apellido, dni, email, contrasenia, telefono, direccion, rol, fechaAlta, foto, idEstacionamiento, status } = this.state;
+        const { idUsuario, nombre, apellido, dni, email, contrasenia, telefono, direccion, rol, fechaAlta, foto, idEstacionamiento, status, datosTarjeta } = this.state;
         const firebase = new Firebase();
         let resultado = false;
 
@@ -157,7 +167,8 @@ class Usuario extends Component {
                         fechaAlta,
                         foto,
                         idEstacionamiento,
-                        status
+                        status,
+                        datosTarjeta
                     });
 
                     resultado = true;
@@ -184,7 +195,7 @@ class Usuario extends Component {
                 // Recorremos cada usuario y mostramos sus datos en la consola
                 Object.keys(usuarios).map((key) => {
                     const usuario = usuarios[key];
-                    console.log(usuario.idUsuario, usuario.nombre, usuario.apellido, usuario.dni, usuario.email, usuario.contrasenia, usuario.telefono, usuario.direccion, usuario.rol, usuario.fechaAlta, usuario.foto, usuario.idEstacionamiento, usuario.status);
+                    console.log(usuario.idUsuario, usuario.nombre, usuario.apellido, usuario.dni, usuario.email, usuario.contrasenia, usuario.telefono, usuario.direccion, usuario.rol, usuario.fechaAlta, usuario.foto, usuario.idEstacionamiento, usuario.status, usuario.datosTarjeta);
                 });
                 //aca puede haber un redireccionamiento
                 resultado = true;
@@ -215,7 +226,7 @@ class Usuario extends Component {
                     Object.keys(usuarios).map((key) => {
                         const usuario = usuarios[key];
                         //aca puede haber un redireccionamiento con los datos
-                        console.log(usuario.idUsuario, usuario.nombre, usuario.apellido, usuario.dni, usuario.email, usuario.contrasenia, usuario.telefono, usuario.direccion, usuario.rol, usuario.fechaAlta, usuario.foto, usuario.idEstacionamiento, usuario.status);
+                        console.log(usuario.idUsuario, usuario.nombre, usuario.apellido, usuario.dni, usuario.email, usuario.contrasenia, usuario.telefono, usuario.direccion, usuario.rol, usuario.fechaAlta, usuario.foto, usuario.idEstacionamiento, usuario.status, usuario.datosTarjeta);
                     });
                     resultado = true;
                 }
