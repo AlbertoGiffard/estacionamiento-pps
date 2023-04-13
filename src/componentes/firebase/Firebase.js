@@ -72,6 +72,15 @@ class Firebase {
   borrarEnDB = (uid, tabla) => {
     return this.database.ref(`${tabla}/${uid}`).remove();
   };
+
+  obtenerCantidadFilas = (tabla, campo, valor) => {
+    return this.database
+      .ref(tabla)
+      .orderByChild(campo)
+      .equalTo(valor)
+      .once('value')
+      .then((snapshot) => snapshot.numChildren());
+  };
 }
 
 export default Firebase;

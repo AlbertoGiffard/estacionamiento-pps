@@ -56,9 +56,27 @@ class Vehiculo extends Component {
         return resultado;
     }
 
-    //si el usuario tiene <= 3 autos activo pasa hacer inactivo
+    //si el usuario tiene <= 3 autos activo pasa hacer inactivo la nueva instancia
     validarStatus = () => {
-        
+        let resultado = null;
+        const firebase = new Firebase();
+        const vehiculosRef = database.ref('vehiculos');
+        const vehiculosUsuarioRef = vehiculosRef.orderByChild('Usuario/idUsuario').equalTo('123');
+
+        firebase.obtenerCantidadFilas('vehiculos', 'idUsuario', this.state.usuario.idUsuario)
+            .then((cantidad) => {
+                if (cantidad < 3) {
+                    resultado = StatusVehiculo.ACTIVO;
+                } else {
+                    resultado = StatusVehiculo.INACTIVO;
+                }
+                return resultado;
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.error(errorMessage);
+            });
     }
 
 }
