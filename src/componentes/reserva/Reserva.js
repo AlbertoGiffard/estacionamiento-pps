@@ -214,7 +214,7 @@ class Reserva extends Component {
         return this.actualizar();
     }
 
-    //El conDescuento nos indicara si se le aplica o no
+    //El conDescuento nos indicara si se le aplica o no, sera un boolean
     totalReserva = (conDescuento) => {
         const { descuento, total } = this.state;
         let totalAPagar;
