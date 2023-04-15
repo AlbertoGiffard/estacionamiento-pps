@@ -57,6 +57,19 @@ class Firebase {
     return this.database.ref(`${tabla}/${uid}`).set(data);
   };
 
+  //el parametro tabla nos indica que tabla debe utilizar, ejemplo (usuarios, vehiculos, etc)
+  crearEnDBSinUid = (tabla, data) => {
+    const collectionRef = db.collection(tabla);
+
+    collectionRef.add(data)
+      .then((docRef) => {
+        console.log('El registro se agregó con éxito:', docRef.id);
+      })
+      .catch((error) => {
+        console.error('Error al agregar el registro:', error);
+      });
+  };
+
   //esta funcion puede traer un valor o todos, ejemplos
   //todos: tabla = usuarios
   //uno: tabla = usuarios/1234AABH
@@ -67,6 +80,33 @@ class Firebase {
 
   actualizarEnDB = (uid, tabla, data) => {
     return this.database.ref(`${tabla}/${uid}`).update(data);
+  };
+
+  actualizarEnDBSinUid = (tabla, campo, valor, data) => {
+    // Realiza una consulta para buscar el documento que deseas actualizar
+    return this.database.ref(tabla)
+      .orderByChild(campo)
+      .equalTo(valor)
+      .once('value')
+      .then((snapshot) => {
+        // Recorre los resultados de la consulta para obtener el uid del documento
+        let uid;
+        snapshot.forEach((childSnapshot) => {
+          uid = childSnapshot.key;
+        });
+
+        // Actualiza el documento usando el uid obtenido
+        if (uid) {
+          return this.actualizarEnDB(uid, tabla, data);
+        } else {
+          console.error('No se encontró el documento a actualizar');
+          return null;
+        }
+      })
+      .catch((error) => {
+        console.error('Error al buscar el documento a actualizar:', error);
+        return null;
+      });
   };
 
   borrarEnDB = (uid, tabla) => {
@@ -81,6 +121,25 @@ class Firebase {
       .once('value')
       .then((snapshot) => snapshot.numChildren());
   };
+
+  obtenerPuestosEstacionamientoPorEstacionamiento = (idEstacionamiento) => {
+    return this.database
+      .ref('puestosEstacionamientos')
+      .orderByChild('idEstacionamiento')
+      .equalTo(idEstacionamiento)
+      .once('value')
+      .then((snapshot) => {
+        const puestos = [];
+        snapshot.forEach((childSnapshot) => {
+          const puesto = {
+            id: childSnapshot.key,
+            ...childSnapshot.val()
+          };
+          puestos.push(puesto);
+        });
+        return puestos;
+      });
+  }
 }
 
 export default Firebase;

@@ -88,6 +88,8 @@ class Usuario extends Component {
                 this.setState({ status: StatusUsuario.SIN_SUSCRIPCION });
                 break;
         }
+
+        return this.actualizar();
     }
 
     /* Sobrescribe todos los campos, aca la idea seria que si solo modifica el email por ejemplo,  
@@ -100,6 +102,8 @@ class Usuario extends Component {
             foto: foto,
             datosTarjeta: datosTarjeta
         });
+
+        return this.actualizar();
     }
 
     //el iniciar sesion si fue exitosa debe redirigir
@@ -184,7 +188,6 @@ class Usuario extends Component {
     };
 
     obtenerUsuarios = () => {
-        //const { idUsuario, nombre, apellido, dni, email, contrasenia, telefono, direccion, rol, fechaAlta, foto, idEstacionamiento, status } = this.state;
         const firebase = new Firebase();
         let resultado = false;
 
@@ -231,6 +234,32 @@ class Usuario extends Component {
                     resultado = true;
                 }
 
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.error(errorMessage);
+            });
+
+        return resultado;
+    }
+
+    actualizar = () => {
+        const firebase = new Firebase();
+        let resultado = false;
+        const { idUsuario, email, contrasenia, datosTarjeta, telefono, direccion, foto, status } = this.state;
+
+        firebase.actualizarEnDBSinUid('usuarios', 'idUsuario', idUsuario, {
+            email,
+            contrasenia,
+            datosTarjeta,
+            telefono,
+            direccion, 
+            foto,
+            status
+        })
+            .then(() => {
+                resultado = true;
             })
             .catch((error) => {
                 const errorCode = error.code;
