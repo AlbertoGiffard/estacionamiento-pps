@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid';
 import Firebase from '../firebase/Firebase';
 import { PuestoEstacionamiento, StatusPuesto } from '../puestoEstacionamiento/PuestoEstacionamiento';
 import { Map, GoogleApiWrapper } from 'google-maps-react';
+import { useState, useEffect } from "react";
 
 
 const StatusEstacionamiento = {
@@ -11,45 +12,43 @@ const StatusEstacionamiento = {
     INACTIVO: 'INACTIVO',
     ACTIVO: 'ACTIVO'
 };
+function Estacionamiento(props) {
+    const [idEstacionamiento, setIdEstacionamiento] = useState(uuidv4());
+    const [nombre, setNombre] = useState(props.nombre);
+    const [duenio, setDuenio] = useState(props.usuario);
+    const [direccion, setDireccion] = useState(props.direccion);  //array de clave-valor
+    const [disponibilidadMax, setDisponibilidadMax] = useState(props.disponibilidadMax);
+    const [puestosDisponibles, setPuestosDisponibles] = useState(props.puestosDisponibles);
+    const [tiposEstadia, setTiposEstadia] = useState(props.tiposEstadia);
+    const [status, setStatus] = useState(StatusEstacionamiento.PENDIENTE);
 
-class Estacionamiento extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            idEstacionamiento: uuid(),
-            nombre: props.nombre,
-            duenio: props.usuario,
-            direccion: props.direccion, //array de clave-valor
-            disponibilidadMax: props.disponibilidadMax,
-            puestosDisponibles: props.puestosDisponibles,
-            tiposEstadia: props.tiposEstadia, 
-            //TIPOS DE ESTADIA
-            /* {
-                hora: {
-                    monto: Float,
-                    descuento: Float
-                },
-                semana: {
-                    monto: Float,
-                    descuento: Float
-                },
-                mes: {
-                    monto: Float,
-                    descuento: Float
-                }
-            } */
-            status: StatusEstacionamiento.PENDIENTE
-        };
-        this.registrar();
-    }
+    const firebase = new Firebase();
+
+    //TIPOS DE ESTADIA
+    /* {
+        hora: {
+            monto: Float,
+            descuento: Float
+        },
+        semana: {
+            monto: Float,
+            descuento: Float
+        },
+        mes: {
+            monto: Float,
+            descuento: Float
+        }
+    } */
+
+    useEffect(() => {
+        registrar();
+    }, []);
 
     //Suma (y crea) la cantidad de puestos disponibles que se le indique
-    agregarPuestos = (cantidad, tipoVehiculos) => {
-        const { estacionamiento } = this.state;
+    const agregarPuestos = (cantidad, tipoVehiculos) => {
         const nuevosPuestos = [];
-        const firebase = new Firebase();
 
-        if (cantidad > 0 && cantidad < this.state.disponibilidadMax) {
+        if (cantidad > 0 && cantidad < state.disponibilidadMax) {
             for (let i = 0; i < cantidad; i++) {
                 const puesto = (
                     <PuestoEstacionamiento
@@ -61,14 +60,11 @@ class Estacionamiento extends Component {
                 nuevosPuestos.push(puesto);
             }
 
-            this.setState((prevState) => ({
-                ...prevState,
-                puestosDisponibles: prevState.puestosDisponibles.concat(nuevosPuestos),
-            }));
+           setPuestosDisponibles((prevState) => prevState.concat(nuevosPuestos));
 
             // Obtiene los puestos existentes y actualiza su estado
             firebase
-                .obtenerPuestosEstacionamientoPorEstacionamiento(this.idEstacionamiento)
+                .obtenerPuestosEstacionamientoPorEstacionamiento(idEstacionamiento)
                 .then((puestosExistentes) => {
                     const puestosActualizados = puestosExistentes.map((puesto) => {
                         return {
@@ -79,7 +75,7 @@ class Estacionamiento extends Component {
                     });
 
                     // Actualiza el estado de los puestos de estacionamiento
-                    this.setState((prevState) => ({
+                    setState((prevState) => ({
                         ...prevState,
                         puestosEstacionamiento: puestosActualizados.concat(nuevosPuestos)
                     }));
@@ -87,16 +83,16 @@ class Estacionamiento extends Component {
                     // Guarda los puestos actualizados en la base de datos
                     firebase.crearEnDBSinUid('puestosEstacionamientos', puestosActualizados);
                 });
-            this.actualizar();
+            actualizar();
         } else {
             console.log('la cantidad no es un numero positivo o supera la disponibilidad Max');
         }
 
     }
 
-    restarPuestos = (cantidad) => {
+    const restarPuestos = (cantidad) => {
         const firebase = new Firebase();
-        const { idEstacionamiento, puestosDisponibles } = this.state;
+        const { idEstacionamiento, puestosDisponibles } = props;
         // Resta la cantidad de puestos del estacionamiento
         const nuevosPuestosDisponibles = puestosDisponibles - cantidad;
 
@@ -105,10 +101,10 @@ class Estacionamiento extends Component {
             return;
         }
 
-        this.setState({ puestosDisponibles: nuevosPuestosDisponibles });
+        setPuestosDisponibles(nuevosPuestosDisponibles);
 
         // Obtiene los puestos del estacionamiento
-        firebase.obtenerPuestosEstacionamientoPorEstacionamiento(this.id)
+        firebase.obtenerPuestosEstacionamientoPorEstacionamiento(idEstacionamiento)
             .then((puestos) => {
                 // Filtra los puestos que están libres y los marca como inactivos
                 const puestosLibres = puestos.filter((puesto) => puesto.status === StatusPuesto.LIBRE);
@@ -124,37 +120,36 @@ class Estacionamiento extends Component {
                 console.error(error);
             });
 
-        this.actualizar();
+        actualizar();
     }
 
-    modificarStatus = (status) => {
+    const modificarStatus = (status) => {
         switch (status) {
             case 'pendiente':
-                this.setState({ status: StatusEstacionamiento.PENDIENTE });
+                setStatus(StatusEstacionamiento.PENDIENTE);
                 break;
 
             case 'rechazado':
-                this.setState({ status: StatusEstacionamiento.RECHAZADO });
+                setStatus(StatusEstacionamiento.RECHAZADO);
                 break;
 
             case 'inactivo':
-                this.setState({ status: StatusEstacionamiento.INACTIVO });
+                setStatus(StatusEstacionamiento.INACTIVO);
                 break;
 
             default:
-                this.setState({ status: StatusEstacionamiento.ACTIVO });
+                setStatus(StatusEstacionamiento.ACTIVO);
                 break;
         }
 
-        return this.actualizar();
+        actualizar();
     }
 
-    registrar = (evento) => {
+    const registrar = (evento) => {
         evento.preventDefault();
 
-        const { idEstacionamiento, nombre, duenio, direccion, disponibilidadMax, puestosDisponibles, tiposEstadia, status } = this.state;
+        const { idEstacionamiento, nombre, duenio, direccion, disponibilidadMax, puestosDisponibles, tiposEstadia, status } = state;
         const firebase = new Firebase();
-        let resultado = false;
 
         firebase.crearEnDBSinUid('estacionamientos', {
             idEstacionamiento,
@@ -167,22 +162,18 @@ class Estacionamiento extends Component {
             status
         })
             .then(() => {
-                resultado = true;
+                console.log("ok");
             })
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 console.error(errorMessage);
             });
-
-        return resultado;
     };
 
-    actualizar = (evento) => {
-        evento.preventDefault();
+    const actualizar = () => {
         const firebase = new Firebase();
-        let resultado = false;
-        const { idEstacionamiento, nombre, duenio, direccion, disponibilidadMax, puestosDisponibles, tiposEstadia, status } = this.state;
+        const { idEstacionamiento, nombre, duenio, direccion, disponibilidadMax, puestosDisponibles, tiposEstadia, status } = state;
 
         firebase.actualizarEnDBSinUid('estacionamientos', 'idEstacionamiento', idEstacionamiento, {
             duenio,
@@ -193,7 +184,7 @@ class Estacionamiento extends Component {
             status
         })
             .then(() => {
-                resultado = true;
+                setState({ ...state });
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -207,7 +198,6 @@ class Estacionamiento extends Component {
 
     obtenerEstacionamientos = () => {
         const firebase = new Firebase();
-        let resultado = false;
 
         firebase.obtenerTodosEnDB('estacionamientos')
             .then((data) => {
@@ -219,7 +209,7 @@ class Estacionamiento extends Component {
                     console.log(estacionamiento.idEstacionamiento, estacionamiento.nombre, estacionamiento.duenio.nombre, estacionamiento.direccion, estacionamiento.disponibilidadMax, estacionamiento.puestosDisponibles, estacionamiento.tiposEstadia, estacionamiento.status);
                 });
                 //aca puede haber un redireccionamiento
-                resultado = true;
+                return true;
 
             })
             .catch((error) => {
@@ -227,16 +217,13 @@ class Estacionamiento extends Component {
                 const errorMessage = error.message;
                 console.error(errorMessage);
             });
-
-        return resultado;
     }
 
     //este nos servirá para traer un estacionamiento en particular, por el idEstacionamiento por ejemplo
-    obtenerEstacionamientosPorCampo = (filtro) => {
+    const obtenerEstacionamientosPorCampo = (filtro) => {
         const firebase = new Firebase();
-        let resultado = false;
 
-        firebase.obtenerValorEnDB(`estacionamientos/${filtro}`)
+        return firebase.obtenerValorEnDB(`estacionamientos/${filtro}`)
             .then((data) => {
                 const estacionamientos = data.val();
 
@@ -248,7 +235,7 @@ class Estacionamiento extends Component {
                         //aca puede haber un redireccionamiento con los datos
                         console.log(estacionamiento.idEstacionamiento, estacionamiento.nombre, estacionamiento.duenio.nombre, estacionamiento.direccion, estacionamiento.disponibilidadMax, estacionamiento.puestosDisponibles, estacionamiento.tiposEstadia, estacionamiento.status);
                     });
-                    resultado = true;
+                    return true;
                 }
 
             })
@@ -256,66 +243,79 @@ class Estacionamiento extends Component {
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 console.error(errorMessage);
+                return true;
             });
-
-        return resultado;
     }
 
     //Me trae todos los estacionamientos cercanos a la direccion pasada por parametro en un radio de 5km
     //hay que ver si funciona, no lo pude probar aun
-    traerCercanos = (direccion) => {
-        const { google } = this.props;
+    const traerCercanos = (direccion, callback) => {
+        const { google } = props;
         const geocoder = new google.maps.Geocoder();
         const distanceMatrix = new google.maps.DistanceMatrixService();
         const radio = 5 * 1000; // 5km en metros
         const resultados = [];
-
+    
         // Obtiene la latitud y longitud de la direccion
         geocoder.geocode({ address: direccion }, (results, status) => {
             if (status === 'OK') {
                 const { lat, lng } = results[0].geometry.location;
-
+    
                 // Obtiene todos los estacionamientos de la base de datos
                 const firebase = new Firebase();
                 firebase.obtenerDatosDeDB('estacionamientos', (estacionamientos) => {
-                    estacionamientos.forEach((estacionamiento) => {
+                    // Obtenemos las distancias de cada estacionamiento
+                    const promises = estacionamientos.map((estacionamiento) => {
                         const { direccion: dirEstacionamiento } = estacionamiento;
                         const dir = `${dirEstacionamiento.calle} ${dirEstacionamiento.numero}, ${dirEstacionamiento.ciudad}, ${dirEstacionamiento.provincia}, ${dirEstacionamiento.pais}`;
-
-                        // Calcula la distancia entre la dirección y el estacionamiento
-                        distanceMatrix.getDistanceMatrix(
-                            {
-                                origins: [{ lat, lng }],
-                                destinations: [{ address: dir }],
-                                travelMode: 'DRIVING'
-                            },
-                            (response, status) => {
-                                if (status === 'OK') {
-                                    const { distance } = response.rows[0].elements[0];
-                                    const distanciaEnMetros = distance.value;
-
-                                    // Si el estacionamiento está dentro del radio de 5km, lo agrega al array de resultados
-                                    if (distanciaEnMetros <= radio) {
-                                        resultados.push(estacionamiento);
+    
+                        return new Promise((resolve, reject) => {
+                            // Calcula la distancia entre la dirección y el estacionamiento
+                            distanceMatrix.getDistanceMatrix(
+                                {
+                                    origins: [{ lat, lng }],
+                                    destinations: [{ address: dir }],
+                                    travelMode: 'DRIVING'
+                                },
+                                (response, status) => {
+                                    if (status === 'OK') {
+                                        const { distance } = response.rows[0].elements[0];
+                                        const distanciaEnMetros = distance.value;
+    
+                                        // Si el estacionamiento está dentro del radio de 5km, lo agrega al array de resultados
+                                        if (distanciaEnMetros <= radio) {
+                                            resultados.push(estacionamiento);
+                                        }
+                                        resolve();
+                                    } else {
+                                        console.error('Error al calcular la distancia:', status);
+                                        reject(status);
                                     }
-                                } else {
-                                    console.error('Error al calcular la distancia:', status);
                                 }
-                            }
-                        );
+                            );
+                        });
                     });
+    
+                    Promise.all(promises)
+                        .then(() => {
+                            callback(resultados);
+                        })
+                        .catch((error) => {
+                            console.error('Error al obtener las distancias:', error);
+                            callback([]);
+                        });
                 });
             } else {
                 console.error('Error al geocodificar la dirección:', status);
+                callback([]);
             }
         });
-
-        return resultados;
-    }
+    };
     
+
     //Aunque solo se actualice el descuento, por ejemplo, de igual forma hay que pasar el dato del monto, igual al contrario
-    modificarTarifa = (tipo, monto, descuento) => {
-        const {hora, semana, mes} = this.state.tiposEstadia;
+    const modificarTarifa = (tipo, monto, descuento) => {
+        const { hora, semana, mes } = state.tiposEstadia;
 
         switch (tipo) {
             case 'hora':
@@ -327,16 +327,14 @@ class Estacionamiento extends Component {
                 semana.setState({ monto: monto });
                 semana.setState({ descuento: descuento });
                 break;
-        
+
             default:
                 mes.setState({ monto: monto });
                 mes.setState({ descuento: descuento });
                 break;
         }
 
-        this.actualizar();
+        actualizar();
     }
 
 }
-
-export default Estacionamiento;

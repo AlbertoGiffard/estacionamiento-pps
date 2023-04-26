@@ -2,33 +2,31 @@ import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/database';
 
-class Firebase {
-  constructor() {
-    // Inicializa Firebase con la configuración
-    const firebaseConfig = {
-      apiKey: "AIzaSyB8CybzZByE7AMyTyyATPqRj2PtMvoR7eM",
-      authDomain: "pps-6to-semestre.firebaseapp.com",
-      projectId: "pps-6to-semestre",
-      storageBucket: "pps-6to-semestre.appspot.com",
-      messagingSenderId: "445817961783",
-      appId: "1:445817961783:web:cb7d61ff2e62619c02aeb2"
-    };
-    firebase.initializeApp(firebaseConfig);
+const firebaseConfig = {
+  apiKey: "AIzaSyB8CybzZByE7AMyTyyATPqRj2PtMvoR7eM",
+  authDomain: "pps-6to-semestre.firebaseapp.com",
+  projectId: "pps-6to-semestre",
+  storageBucket: "pps-6to-semestre.appspot.com",
+  messagingSenderId: "445817961783",
+  appId: "1:445817961783:web:cb7d61ff2e62619c02aeb2"
+};
 
-    // Crea referencias a la autenticación y la base de datos de Firebase
-    this.auth = firebase.auth();
-    this.database = firebase.database();
-  }
+// Inicializa Firebase con la configuración
+firebase.initializeApp(firebaseConfig);
 
+const auth = firebase.auth();
+const database = firebase.database();
+
+const Firebase = () => {
   // Métodos de autenticación
-  iniciarSesion = (email, contrasenia) => {
-    return this.auth.signInWithEmailAndPassword(email, contrasenia);
+  const iniciarSesion = (email, contrasenia) => {
+    return auth.signInWithEmailAndPassword(email, contrasenia);
   };
   //verifica si existe el mail o no
-  verificarMail = (email) => {
-    return this.auth.fetchProvidersForEmail(email)
-      .then((providers) => {
-        if (providers && providers.length > 0) {
+  const verificarMail = (email) => {
+    return auth.fetchSignInMethodsForEmail(email)
+      .then((signInMethods) => {
+        if (signInMethods && signInMethods.length > 0) {
           // El correo electrónico ya está en uso
           return false;
         } else {
@@ -43,27 +41,25 @@ class Firebase {
       });
   }
 
-  registrarse = (email, contrasenia) => {
-    return this.auth.createUserWithEmailAndPassword(email, contrasenia);
+  const registrarse = (email, contrasenia) => {
+    return auth.createUserWithEmailAndPassword(email, contrasenia);
   };
 
-  cerrarSesion = () => {
-    return this.auth.signOut();
+  const cerrarSesion = () => {
+    return auth.signOut();
   };
 
   // Métodos de base de datos
   //el parametro tabla nos indica que tabla debe utilizar, ejemplo (usuarios, vehiculos, etc)
-  crearEnDB = (uid, tabla, data) => {
-    return this.database.ref(`${tabla}/${uid}`).set(data);
+  const crearEnDB = (uid, tabla, data) => {
+    return database.ref(`${tabla}/${uid}`).set(data);
   };
 
   //el parametro tabla nos indica que tabla debe utilizar, ejemplo (usuarios, vehiculos, etc)
-  crearEnDBSinUid = (tabla, data) => {
-    const collectionRef = db.collection(tabla);
-
-    collectionRef.add(data)
-      .then((docRef) => {
-        console.log('El registro se agregó con éxito:', docRef.id);
+  const crearEnDBSinUid = (tabla, data) => {
+    return collectionRef.push(data)
+      .then(() => {
+        console.log('El registro se agregó con éxito');
       })
       .catch((error) => {
         console.error('Error al agregar el registro:', error);
@@ -74,17 +70,39 @@ class Firebase {
   //todos: tabla = usuarios
   //uno: tabla = usuarios/1234AABH
   //en este ultimo caso traera solo el campo que haga match
-  obtenerValorEnDB = (tabla) => {
-    return this.database.ref(`${tabla}`).once('value');
+  //En este código, se utiliza la función once() de Firebase para obtener el valor de la referencia una sola vez. Si la referencia no existe, la función devuelve null. Si se solicita un solo valor, se devuelve el valor correspondiente. Si se solicitan varios valores, se devuelve un objeto con todas las entradas.
+  const obtenerValorEnDB = (tabla) => {
+    return database.ref(tabla).once('value')
+      .then((snapshot) => {
+        // Si la referencia no existe, devolver null
+        if (!snapshot.exists()) {
+          return null;
+        }
+        // Si se solicita un solo valor, devolver el valor correspondiente
+        if (snapshot.numChildren() === 1) {
+          return snapshot.val();
+        }
+        // Si se solicitan varios valores, devolver un objeto con todas las entradas
+        const values = {};
+        snapshot.forEach((childSnapshot) => {
+          values[childSnapshot.key] = childSnapshot.val();
+        });
+        return values;
+      })
+      .catch((error) => {
+        console.error(error);
+        // Error al obtener el valor de la base de datos
+        return null;
+      });
   };
 
-  actualizarEnDB = (uid, tabla, data) => {
-    return this.database.ref(`${tabla}/${uid}`).update(data);
+  const actualizarEnDB = (uid, tabla, data) => {
+    return database.ref(`${tabla}/${uid}`).update(data);
   };
 
-  actualizarEnDBSinUid = (tabla, campo, valor, data) => {
+  const actualizarEnDBSinUid = (tabla, campo, valor, data) => {
     // Realiza una consulta para buscar el documento que deseas actualizar
-    return this.database.ref(tabla)
+    return database.ref(tabla)
       .orderByChild(campo)
       .equalTo(valor)
       .once('value')
@@ -97,7 +115,7 @@ class Firebase {
 
         // Actualiza el documento usando el uid obtenido
         if (uid) {
-          return this.actualizarEnDB(uid, tabla, data);
+          return actualizarEnDB(uid, tabla, data);
         } else {
           console.error('No se encontró el documento a actualizar');
           return null;
@@ -109,12 +127,12 @@ class Firebase {
       });
   };
 
-  borrarEnDB = (uid, tabla) => {
-    return this.database.ref(`${tabla}/${uid}`).remove();
+  const borrarEnDB = (uid, tabla) => {
+    return database.ref(`${tabla}/${uid}`).remove();
   };
 
-  obtenerCantidadFilas = (tabla, campo, valor) => {
-    return this.database
+  const obtenerCantidadFilas = (tabla, campo, valor) => {
+    return database
       .ref(tabla)
       .orderByChild(campo)
       .equalTo(valor)
@@ -122,8 +140,8 @@ class Firebase {
       .then((snapshot) => snapshot.numChildren());
   };
 
-  obtenerPuestosEstacionamientoPorEstacionamiento = (idEstacionamiento) => {
-    return this.database
+  const obtenerPuestosEstacionamientoPorEstacionamiento = (idEstacionamiento) => {
+    return database
       .ref('puestosEstacionamientos')
       .orderByChild('idEstacionamiento')
       .equalTo(idEstacionamiento)
@@ -138,6 +156,10 @@ class Firebase {
           puestos.push(puesto);
         });
         return puestos;
+      })
+      .catch((error) => {
+        console.error('Error al obtener puestos de estacionamiento:', error);
+        return null;
       });
   }
 }

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { v4 as uuid } from 'uuid';
 import Firebase from '../firebase/Firebase';
+import { useState, useEffect } from "react";
 
 
 const TipoVehiculo = {
@@ -16,25 +17,23 @@ const StatusVehiculo = {
     EN_PUESTO: 'EN_PUESTO'
 };
 
-class Vehiculo extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            idVehiculo: uuid(),
-            usuario: props.Usuario,
-            marca: props.marca,
-            modelo: props.modelo,
-            patente: props.patente,
-            tipo: validarTipo(props.tipoVehiculo),
-            color: props.color,
-            totalReservas: props.totalReservas,
-            status: validarStatus()
-        };
-        this.registrar();
-    }
+const Vehiculo = (props) => {
+    const [idVehiculo, setIdVehiculo] = useState(uuid());
+    const [usuario, setUsuario] = useState(props.Usuario);
+    const [marca, setMarca] = useState(props.marca);
+    const [modelo, setModelo] = useState(props.modelo);
+    const [patente, setPatente] = useState(props.patente);
+    const [tipo, setTipo] = useState(validarTipo(props.tipoVehiculo));
+    const [color, setColor] = useState(props.color);
+    const [totalReservas, setTotalReservas] = useState(props.totalReservas);
+    const [status, setStatus] = useState(validarStatus());
+
+    useEffect(() => {
+        registrar();
+    }, []);
 
     //dependiendo de como venga este atributo lo definira con alguno de los roles previamente cargado
-    validarTipo = (tipo) => {
+    const validarTipo = (tipo) => {
         resultado = TipoVehiculo.AUTO;
 
         switch (tipo) {
@@ -58,18 +57,16 @@ class Vehiculo extends Component {
     }
 
     //si el usuario tiene <= 3 autos activo pasa hacer inactivo la nueva instancia
-    validarStatus = () => {
-        let resultado = null;
+    const validarStatus = () => {
         const firebase = new Firebase();
 
-        firebase.obtenerCantidadFilas('vehiculos', 'idUsuario', this.state.usuario.idUsuario)
+        firebase.obtenerCantidadFilas('vehiculos', 'idUsuario', state.usuario.idUsuario)
             .then((cantidad) => {
                 if (cantidad < 3) {
-                    resultado = StatusVehiculo.ACTIVO;
+                    setStatus(StatusVehiculo.ACTIVO);
                 } else {
-                    resultado = StatusVehiculo.INACTIVO;
+                    setStatus(StatusVehiculo.INACTIVO);
                 }
-                return resultado;
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -79,47 +76,47 @@ class Vehiculo extends Component {
     }
 
 
-    modificarStatus = (status) => {
+    const modificarStatus = (status) => {
         let resultado = true;
 
         switch (status) {
             case 'activo':
                 //valida que no tenga ya 3 vehiculos activos
-                if (this.validarStatus() == StatusVehiculo.ACTIVO) {
-                    this.setState({ status: StatusVehiculo.ACTIVO });
+                if (validarStatus() == StatusVehiculo.ACTIVO) {
+                    setStatus(StatusVehiculo.ACTIVO);
                 } else {
                     resultado = false;
                 }
                 break;
 
             case 'inactivo':
-                this.setState({ status: StatusVehiculo.INACTIVO });
+                setStatus(StatusVehiculo.INACTIVO);
                 break;
 
             default:
-                this.setState({ status: StatusVehiculo.EN_PUESTO });
+                setStatus(StatusVehiculo.EN_PUESTO);
                 break;
         }
 
         if (resultado) {
-            resultado = this.actualizar();
+            resultado = actualizar();
         }
 
         return resultado;
     }
 
     //suma una reserva al vehiculo no importa el status final de la reserva, se suma al contador del vehiculo
-    sumarReserva = () => {
-        let total = this.state.totalReservas++;
+    const sumarReserva = () => {
+        let total = state.totalReservas++;
 
-        this.setState({ totalReservas: total });
-        return this.actualizar();
+        setTotalReservas(total);
+        return actualizar();
     }
 
-    registrar = (evento) => {
+    const registrar = (evento) => {
         evento.preventDefault();
 
-        const { idVehiculo, usuario, marca, modelo, patente, tipo, color, totalReservas, status } = this.state;
+        const { idVehiculo, usuario, marca, modelo, patente, tipo, color, totalReservas, status } = state;
         const firebase = new Firebase();
         let resultado = false;
 
@@ -144,34 +141,29 @@ class Vehiculo extends Component {
                     console.error(errorMessage);
                 });
         }
-
-        return resultado;
     };
 
-    actualizar = () => {
+    const actualizar = (evento) => {
+        evento.preventDefault();
         const firebase = new Firebase();
-        let resultado = false;
-        const { idVehiculo, totalReservas, status } = this.state;
+        const { idVehiculo, totalReservas, status } = state;
 
         firebase.actualizarEnDBSinUid('vehiculos', 'idVehiculo', idVehiculo, {
             totalReservas,
             status
         })
             .then(() => {
-                resultado = true;
+                return true;
             })
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 console.error(errorMessage);
             });
-
-        return resultado;
     }
 
-    obtenerVehiculos = () => {
+    const obtenerVehiculos = () => {
         const firebase = new Firebase();
-        let resultado = false;
 
         firebase.obtenerTodosEnDB('vehiculos')
             .then((data) => {
@@ -183,7 +175,7 @@ class Vehiculo extends Component {
                     console.log(vehiculo.idVehiculo, vehiculo.usuario.nombre, vehiculo.usuario.apellido, vehiculo.marca, vehiculo.modelo, vehiculo.patente, vehiculo.tipo, vehiculo.color, vehiculo.totalReservas, vehiculo.status);
                 });
                 //aca puede haber un redireccionamiento
-                resultado = true;
+                return true;
 
             })
             .catch((error) => {
@@ -191,14 +183,11 @@ class Vehiculo extends Component {
                 const errorMessage = error.message;
                 console.error(errorMessage);
             });
-
-        return resultado;
     }
 
     //este nos servirá para traer un vehiculo en particular, por el idUsuario por ejemplo
-    obtenerVehiculosPorCampo = (filtro) => {
+    const obtenerVehiculosPorCampo = (filtro) => {
         const firebase = new Firebase();
-        let resultado = false;
 
         firebase.obtenerValorEnDB(`vehiculos/idUsuario/${filtro}`)
             .then((data) => {
@@ -212,7 +201,7 @@ class Vehiculo extends Component {
                         //aca puede haber un redireccionamiento con los datos
                         console.log(vehiculo.idVehiculo, vehiculo.usuario.nombre, vehiculo.usuario.apellido, vehiculo.marca, vehiculo.modelo, vehiculo.patente, vehiculo.tipo, vehiculo.color, vehiculo.totalReservas, vehiculo.status);
                     });
-                    resultado = true;
+                    return true;
                 }
 
             })
@@ -221,8 +210,6 @@ class Vehiculo extends Component {
                 const errorMessage = error.message;
                 console.error(errorMessage);
             });
-
-        return resultado;
     }
 
 }

@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import { useHistory } from 'react-router-dom';
 import { v4 as uuid } from 'uuid';
 import Firebase from '../firebase/Firebase';
+import { useState, useEffect } from "react";
 
 const StatusPuesto = {
     LIBRE: 'LIBRE',
@@ -8,64 +10,57 @@ const StatusPuesto = {
     INACTIVO: 'INACTIVO'
 };
 
-class PuestoEstacionamiento extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            idPuesto: uuid(),
-            idEstacionamiento: props.estacionamiento.idEstacionamiento,
-            vehiculo: props.vehiculo,
-            status: validarStatus(props.vehiculo),
-            tipoVehiculos: props.tipoVehiculos
-        };
-        this.registrar();
-    }
+const PuestoEstacionamiento = (props) => {
+    const [idPuesto, setIdPuesto] = useState(uuid());
+    const [idEstacionamiento, setIdEstacionamiento] = useState(props.estacionamiento.idEstacionamiento);
+    const [vehiculo, setVehiculo] = useState(props.vehiculo);
+    const [status, setStatus] = useState(validarStatus(props.vehiculo));
+    const [tipoVehiculos, setTipoVehiculos] = useState(props.tipoVehiculos);
+
+    useEffect(() => {
+        registrar();
+    }, []);
 
     //valido si fue cargada esta instancia con un vehiculo o vino el dato como nulo
-    validarStatus = (vehiculo) => {
-        let resultado = StatusPuesto.LIBRE;
-
+    const validarStatus = (vehiculo) => {
         if (vehiculo) {
-            resultado = StatusPuesto.OCUPADO;
+            return StatusPuesto.OCUPADO;
+        } else {
+            return StatusPuesto.LIBRE;
         }
-
-        return resultado;
-    }
+    };
 
     //Si modifico por libre o inactivo tengo que dejar el atributo vehiculo como vacio
-    modificarStatus = (status, vehiculo) => {
+    const modificarStatus = (status, vehiculo) => {
         let resultado = true;
 
         switch (status) {
             case 'libre':
-                this.setState({ status: StatusPuesto.LIBRE });
-                this.setState({ vehiculo: null });
+                setStatus(StatusPuesto.LIBRE);
+                setVehiculo(null);
                 break;
 
             case 'ocupado':
                 if (vehiculo) {
-                    this.setState({ status: StatusPuesto.OCUPADO });
-                    this.setState({ vehiculo: vehiculo });
+                    setStatus(StatusPuesto.OCUPADO);
+                    setVehiculo(vehiculo);
                 } else {
                     resultado = false;
                 }
                 break;
 
             default:
-                this.setState({ status: StatusPuesto.INACTIVO });
-                this.setState({ vehiculo: null });
+                setStatus(StatusPuesto.INACTIVO);
+                setVehiculo(null);
                 break;
         }
 
         return resultado;
     }
 
-    registrar = (evento) => {
-        evento.preventDefault();
-
-        const { idPuesto, idEstacionamiento, vehiculo, status, tipoVehiculos } = this.state;
+    const registrar = () => {
+        const { idPuesto, idEstacionamiento, vehiculo, status, tipoVehiculos } = state;
         const firebase = new Firebase();
-        let resultado = false;
 
         firebase.crearEnDBSinUid('puestosEstacionamientos', {
             idPuesto,
@@ -75,43 +70,38 @@ class PuestoEstacionamiento extends Component {
             tipoVehiculos
         })
             .then(() => {
-                resultado = true;
+                return true;
             })
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 console.error(errorMessage);
             });
-
-        return resultado;
     };
 
     actualizar = (evento) => {
         evento.preventDefault();
         const firebase = new Firebase();
-        let resultado = false;
-        const { idPuesto, idEstacionamiento, vehiculo, status, tipoVehiculos } = this.state;
+        const { idPuesto, idEstacionamiento, vehiculo, status, tipoVehiculos } = state;
 
-        firebase.actualizarEnDBSinUid('puestosEstacionamientos', 'idPuesto', this.state.idPuesto, {
+        firebase.actualizarEnDBSinUid('puestosEstacionamientos', 'idPuesto', idPuesto, {
             vehiculo,
             status,
             tipoVehiculos
         })
             .then(() => {
-                resultado = true;
+                return true;
             })
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 console.error(errorMessage);
             });
-
-        return resultado;
     }
-    
-    obtenerPuestos = () => {
+
+    const obtenerPuestos = () => {
         const firebase = new Firebase();
-        let resultado = false;
+        const history = useHistory();
 
         firebase.obtenerTodosEnDB('puestosEstacionamientos')
             .then((data) => {
@@ -122,23 +112,20 @@ class PuestoEstacionamiento extends Component {
                     const puesto = puestos[key];
                     console.log(puesto.idPuesto, puesto.idEstacionamiento, puesto.vehiculo, puesto.status, puesto.tipoVehiculos);
                 });
-                //aca puede haber un redireccionamiento
-                resultado = true;
 
+                // Redireccionamos al usuario a otra página después de obtener los puestos
+                history.push('/otra-pagina');
             })
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 console.error(errorMessage);
             });
-
-        return resultado;
     }
 
     //este nos servirá para traer un puesto en particular, por el idEstacionamiento por ejemplo
-    obtenerPuestosPorCampo = (filtro) => {
+    const obtenerPuestosPorCampo = (filtro) => {
         const firebase = new Firebase();
-        let resultado = false;
 
         firebase.obtenerValorEnDB(`puestosEstacionamientos/idEstacionamiento/${filtro}`)
             .then((data) => {
@@ -152,7 +139,7 @@ class PuestoEstacionamiento extends Component {
                         //aca puede haber un redireccionamiento con los datos
                         console.log(puesto.idPuesto, puesto.idEstacionamiento, puesto.vehiculo, puesto.status, puesto.tipoVehiculos);
                     });
-                    resultado = true;
+                    return true;
                 }
 
             })

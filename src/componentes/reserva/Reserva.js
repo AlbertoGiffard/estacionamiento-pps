@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { v4 as uuid } from 'uuid';
 import Firebase from '../firebase/Firebase';
+import { useState, useEffect } from "react";
 
 
 const TipoReserva = {
@@ -22,26 +23,26 @@ const StatusPago = {
     CANCELADA: 'CANCELADA'
 };
 
-class Reserva extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            idReserva: uuid(),
-            estacionamiento: props.estacionamiento,
-            usuario: props.usuario,
-            vehiculo: props.vehiculo,
-            tipo: Reserva.verificarTipo(props.tipoReserva),
-            fechaLlegada: props.fechaLlegada,
-            fechaSalida: props.fechaSalida,
-            status: StatusReserva.POR_CONFIRMAR,
-            statusPago: StatusPago.POR_PAGAR,
-            descuento: props.descuento,
-            total: props.total
-        };
-    }
+const Reserva = (props) => {
+    const [idReserva, setIdReserva] = useState(uuid());
+    const [estacionamiento, setEstacionamiento] = useState(props.estacionamiento);
+    const [usuario, setUsuario] = useState(props.usuario);
+    const [vehiculo, setVehiculo] = useState(props.vehiculo);
+    const [tipo, setTipo] = useState(verificarTipo(props.tipoReserva));
+    const [fechaLlegada, setFechaLlegada] = useState(props.fechaLlegada);
+    const [fechaSalida, setFechaSalida] = useState(props.fechaSalida);
+    const [status, setStatus] = useState(StatusReserva.POR_CONFIRMAR);
+    const [statusPago, setStatusPago] = useState(StatusPago.POR_PAGAR);
+    const [descuento, setDescuento] = useState(props.descuento);
+    const [total, setTotal] = useState(props.total);
+
+    useEffect(() => {
+        registrar();
+    }, []);
+
 
     //Dependiendo de coomo venga este atributo lo definira con alguno de los tipos previamente cargado
-    static verificarTipo = (tipoReserva) => {
+    const verificarTipo = (tipoReserva) => {
         resultado = TipoReserva.MES;
 
         switch (tipoReserva) {
@@ -60,10 +61,10 @@ class Reserva extends Component {
         return resultado;
     }
 
-    registrar = (evento) => {
+    const registrar = (evento) => {
         evento.preventDefault();
 
-        const { idReserva, estacionamiento, usuario, vehiculo, tipo, fechaLlegada, fechaSalida, status, statusPago, descuento, total } = this.state;
+        const { idReserva, estacionamiento, usuario, vehiculo, tipo, fechaLlegada, fechaSalida, status, statusPago, descuento, total } = state;
         const firebase = new Firebase();
         let resultado = false;
 
@@ -88,14 +89,12 @@ class Reserva extends Component {
                 const errorMessage = error.message;
                 console.error(errorMessage);
             });
-
-        return resultado;
     };
 
-    actualizar = () => {
+    const actualizar = (evento) => {
+        evento.preventDefault();
         const firebase = new Firebase();
-        let resultado = false;
-        const { idReserva, vehiculo, fechaLlegada, fechaSalida, status, statusPago, descuento, total } = this.state;
+        const { idReserva, vehiculo, fechaLlegada, fechaSalida, status, statusPago, descuento, total } = state;
 
         firebase.actualizarEnDBSinUid('reservas', 'idReserva', idReserva, {
             vehiculo,
@@ -107,20 +106,17 @@ class Reserva extends Component {
             total
         })
             .then(() => {
-                resultado = true;
+                return true;
             })
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 console.error(errorMessage);
             });
-
-        return resultado;
     }
 
-    obtenerReservas = () => {
+    const obtenerReservas = () => {
         const firebase = new Firebase();
-        let resultado = false;
 
         firebase.obtenerTodosEnDB('reservas')
             .then((data) => {
@@ -132,7 +128,7 @@ class Reserva extends Component {
                     console.log(reserva.idReserva, reserva.estacionamiento.nombre, reserva.usuario.nombre, reserva.vehiculo.patente, reserva.tipo, reserva.fechaLlegada, reserva.fechaSalida, reserva.status, reserva.statusPago, reserva.descuento, reserva.total);
                 });
                 //aca puede haber un redireccionamiento
-                resultado = true;
+                return true;
 
             })
             .catch((error) => {
@@ -140,14 +136,11 @@ class Reserva extends Component {
                 const errorMessage = error.message;
                 console.error(errorMessage);
             });
-
-        return resultado;
     }
 
     //Este nos servirá para traer una reserva en particular, por el idReserva por ejemplo
-    obtenerReservasPorCampo = (filtro) => {
+    const obtenerReservasPorCampo = (filtro) => {
         const firebase = new Firebase();
-        let resultado = false;
 
         firebase.obtenerValorEnDB(`reservas/${filtro}`)
             .then((data) => {
@@ -161,7 +154,7 @@ class Reserva extends Component {
                         //aca puede haber un redireccionamiento con los datos
                         console.log(reserva.idReserva, reserva.estacionamiento.nombre, reserva.usuario.nombre, reserva.vehiculo.patente, reserva.tipo, reserva.fechaLlegada, reserva.fechaSalida, reserva.status, reserva.statusPago, reserva.descuento, reserva.total);
                     });
-                    resultado = true;
+                    return true;
                 }
 
             })
@@ -170,53 +163,51 @@ class Reserva extends Component {
                 const errorMessage = error.message;
                 console.error(errorMessage);
             });
-
-        return resultado;
     }
 
-    modificarStatus = (status) => {
+    const modificarStatus = (status) => {
         switch (status) {
             case 'confirmada':
-                this.setState({ status: StatusReserva.CONFIRMADA });
+                setStatus(StatusReserva.CONFIRMADA);
                 break;
 
             case 'cancelada':
-                this.setState({ status: StatusReserva.CANCELADA });
+                setStatus(StatusReserva.CANCELADA);
                 break;
 
             case 'sin_respuesta':
-                this.setState({ status: StatusReserva.SIN_RESPUESTA });
+                setStatus(StatusReserva.SIN_RESPUESTA);
                 break;
 
             default:
-                this.setState({ status: StatusReserva.POR_CONFIRMAR });
+                setStatus(StatusReserva.POR_CONFIRMAR);
                 break;
         }
 
-        return this.actualizar();
+        return actualizar();
     }
 
-    modificarPago = (statusPago) => {
+    const modificarPago = (statusPago) => {
         switch (statusPago) {
             case 'pagada':
-                this.setState({ status: StatusPago.PAGADA });
+                setStatus(StatusPago.PAGADA);
                 break;
-
+    
             case 'cancelada':
-                this.setState({ status: StatusPago.CANCELADA });
+                setStatus(StatusPago.CANCELADA);
                 break;
-
+    
             default:
-                this.setState({ status: StatusPago.POR_PAGAR });
+                setStatus(StatusPago.POR_PAGAR);
                 break;
         }
-
-        return this.actualizar();
+    
+        return actualizar();
     }
 
     //El conDescuento nos indicara si se le aplica o no, sera un boolean
-    totalReserva = (conDescuento) => {
-        const { descuento, total } = this.state;
+    const totalReserva = (conDescuento) => {
+        const { descuento, total } = state;
         let totalAPagar;
 
         if (conDescuento) {
@@ -225,10 +216,10 @@ class Reserva extends Component {
             totalAPagar = total;
         }
 
-        this.setState({ total: totalAPagar });
-        this.actualizar()
+        setTotal(totalAPagar);
+        actualizar()
             .then(() => {
-                return this.state.total;
+                return state.total;
             })
             .catch((error) => {
                 const errorCode = error.code;
