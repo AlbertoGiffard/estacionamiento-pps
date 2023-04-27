@@ -1,6 +1,7 @@
 :root {
   --ColorPrimario: #4abcad;
-  --ColorSecundario: #ff5e27; /*opciones: ff491b, ff4d10 */
+  --ColorSecundario: #ff5e27;
+  /*opciones: ff491b, ff4d10 */
   --ColorTerciario: #f8b732;
   --BtnOk: #3ec47e;
   --BtnOkEncima: #13c167;
@@ -8,11 +9,28 @@
   --BtnCancelarEncima: #e32614;
 }
 
-.btn-ok{
+.App {
+  position: relative;
+  background-image: linear-gradient(110deg, var(--ColorPrimario) 52%, var(--ColorTerciario) 65%);
+}
+
+.btn-ok {
   background-color: var(--BtnOk);
 }
 
-.btn-ok:hover{
+.btn-ok:hover {
   background-color: var(--BtnOkEncima);
   font-weight: 600;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.main-content {
+  margin-top: 70px;
 }

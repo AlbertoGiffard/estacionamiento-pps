@@ -1,4 +1,4 @@
-import logo from './logo.svg';
+import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
@@ -7,6 +7,7 @@ import "firebase/firestore";
 import Header from './componentes/header/Header';
 import Inicio from './componentes/inicio/Inicio';
 import Footer from './componentes/footer/Footer';
+import Login from './componentes/frontend/login/Login';
 
 const firebaseConfig = {
   apiKey: "AIzaSyB8CybzZByE7AMyTyyATPqRj2PtMvoR7eM",
@@ -22,9 +23,18 @@ firebase.initializeApp(firebaseConfig);
 function App() {
   return (
     <div className="App">
-      <Header />
-      <Inicio />
-      <Footer />
+      <div className="header">
+        <Header />
+      </div>
+      <div className="main-content">
+        <Routes >
+          <Route path="/" element={<Inicio />} />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </div>
+      <div className="footer">
+        <Footer />
+      </div>
     </div>
   );
 }
