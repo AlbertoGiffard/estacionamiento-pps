@@ -4,21 +4,21 @@ import Firebase from '../firebase/Firebase';
 import { useState, useEffect } from "react";
 
 
-const TipoVehiculo = {
+export const TipoVehiculo = {
     BICICLETA: 'BICICLETA',
     MOTO: 'MOTO',
     AUTO: 'AUTO',
     CAMIONETA: 'CAMIONETA'
 };
 
-const StatusVehiculo = {
+export const StatusVehiculo = {
     ACTIVO: 'ACTIVO',
     INACTIVO: 'INACTIVO',
     EN_PUESTO: 'EN_PUESTO'
 };
 
 const Vehiculo = (props) => {
-    const [idVehiculo, setIdVehiculo] = useState(uuid());
+    const [idVehiculo, setIdVehiculo] = useState(props.idVehiculo);
     const [usuario, setUsuario] = useState(props.Usuario);
     const [marca, setMarca] = useState(props.marca);
     const [modelo, setModelo] = useState(props.modelo);
@@ -26,15 +26,15 @@ const Vehiculo = (props) => {
     const [tipo, setTipo] = useState(validarTipo(props.tipoVehiculo));
     const [color, setColor] = useState(props.color);
     const [totalReservas, setTotalReservas] = useState(props.totalReservas);
-    const [status, setStatus] = useState(validarStatus());
+    const [status, setStatus] = useState(props.statusVehiculo);
 
-    useEffect(() => {
+    /* useEffect(() => {
         registrar();
-    }, []);
+    }, []); */
 
     //dependiendo de como venga este atributo lo definira con alguno de los roles previamente cargado
     const validarTipo = (tipo) => {
-        resultado = TipoVehiculo.AUTO;
+        let resultado = TipoVehiculo.AUTO;
 
         switch (tipo) {
             case 'bicicleta':
@@ -59,8 +59,11 @@ const Vehiculo = (props) => {
     //si el usuario tiene <= 3 autos activo pasa hacer inactivo la nueva instancia
     const validarStatus = () => {
         const firebase = new Firebase();
+        const vehiculo = {
+            usuario
+        }
 
-        firebase.obtenerCantidadFilas('vehiculos', 'idUsuario', state.usuario.idUsuario)
+        firebase.obtenerCantidadFilas('vehiculos', 'idUsuario', usuario.idUsuario)
             .then((cantidad) => {
                 if (cantidad < 3) {
                     setStatus(StatusVehiculo.ACTIVO);
@@ -107,7 +110,8 @@ const Vehiculo = (props) => {
 
     //suma una reserva al vehiculo no importa el status final de la reserva, se suma al contador del vehiculo
     const sumarReserva = () => {
-        let total = state.totalReservas++;
+        const vehiculo = { totalReservas };
+        let total = vehiculo.totalReservas++;
 
         setTotalReservas(total);
         return actualizar();
@@ -116,37 +120,62 @@ const Vehiculo = (props) => {
     const registrar = (evento) => {
         evento.preventDefault();
 
-        const { idVehiculo, usuario, marca, modelo, patente, tipo, color, totalReservas, status } = state;
-        const firebase = new Firebase();
-        let resultado = false;
-
-        if (firebase.obtenerValorEnDB(`usuarios/${usuario.idUsuario}`)) {
-            firebase.crearEnDBSinUid('vehiculos', {
-                idVehiculo,
-                usuario,
-                marca,
-                modelo,
-                patente,
-                tipo,
-                color,
-                totalReservas,
-                status
-            })
-                .then(() => {
-                    resultado = true;
-                })
-                .catch((error) => {
-                    const errorCode = error.code;
-                    const errorMessage = error.message;
-                    console.error(errorMessage);
-                });
+        const vehiculo = {
+            idVehiculo,
+            usuario,
+            marca,
+            modelo,
+            patente,
+            tipo,
+            color,
+            totalReservas,
+            status
         }
+        const firebase = new Firebase();
+
+        firebase.obtenerValorEnDB("usuarios", { idUsuario: usuario.idUsuario })
+            .then((usuarioEncontrado) => {
+                // Si el usuario existe, crear el vehículo
+                if (usuarioEncontrado) {
+                    firebase.crearEnDB(idVehiculo, "vehiculos", {
+                        idVehiculo,
+                        usuario,
+                        marca,
+                        modelo,
+                        patente,
+                        tipo,
+                        color,
+                        totalReservas,
+                        status
+                    })
+                        .then(() => {
+                            return Promise.resolve(true);
+                        })
+                        .catch((error) => {
+                            const errorCode = error.code;
+                            const errorMessage = error.message;
+                            console.error(errorMessage);
+                            return Promise.resolve(false);
+                        });
+                } else {
+                    console.error("El usuario no existe en la base de datos.");
+                    return Promise.resolve(false);
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+                return Promise.resolve(false);
+            });
     };
 
     const actualizar = (evento) => {
         evento.preventDefault();
         const firebase = new Firebase();
-        const { idVehiculo, totalReservas, status } = state;
+        const vehiculo = {
+            idVehiculo,
+            totalReservas,
+            status
+        }
 
         firebase.actualizarEnDBSinUid('vehiculos', 'idVehiculo', idVehiculo, {
             totalReservas,

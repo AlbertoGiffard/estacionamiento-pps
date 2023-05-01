@@ -29,7 +29,7 @@ const Login = () => {
                     <div className="col-md-4 fondo-izquierdo rounded-start d-flex justify-content-center align-items-center">
                         <img src="http://www.logobook.com/wp-content/uploads/2016/10/Messaggeria_Emiliana_logo.svg" alt="Logo" className="d-inline-block align-text-center img-inicio" />
                     </div>
-                    <div className="col-md-8 blur-bg formulario rounded-end justify-content-center align-items-center top-center">
+                    <div className="col-md-8 blur-bg formulario rounded-end justify-content-center align-items-center">
                         <form className="needs-validation align-self-center my-auto h-100" onSubmit={handleSubmit} noValidate>
                             <div className="mb-3">
                                 <label htmlFor="email" className="fs-4">Email</label>
@@ -43,9 +43,12 @@ const Login = () => {
                                 <input type="password" className="form-control" id="contrasenia" name="contrasenia" value={datos.contrasenia} required />
                             </div>
                             <div className="text-center">
-                                <button className="btn btn-ok btn-lg w-50 mb-1" type="submit">
-                                    Enviar
-                                </button>
+                                {/* test */}
+                                <Link to="/dashboard" className="nav-link active">
+                                    <button className="btn btn-ok btn-lg w-50 mb-1" type="submit">
+                                        Ingresar
+                                    </button>
+                                </Link>
                                 <div className="container-registrarse d-flex align-items-center justify-content-start">
                                     <span className=''>Eres nuevo?</span>
                                     <Link to="/registrarse" className="nav-link active">

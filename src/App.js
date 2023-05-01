@@ -8,6 +8,9 @@ import Header from './componentes/header/Header';
 import Inicio from './componentes/inicio/Inicio';
 import Footer from './componentes/footer/Footer';
 import Login from './componentes/frontend/login/Login';
+import Registrarse from './componentes/frontend/registrarse/Registrarse';
+import Dashboard from './componentes/frontend/dashboard/Dashboard';
+import NuevaReserva from './componentes/frontend/moduloReserva/nuevaReserva/NuevaReserva';
 
 const firebaseConfig = {
   apiKey: "AIzaSyB8CybzZByE7AMyTyyATPqRj2PtMvoR7eM",
@@ -30,6 +33,9 @@ function App() {
         <Routes >
           <Route path="/" element={<Inicio />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/registrarse" element={<Registrarse />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/nuevaReserva" element={<NuevaReserva />} />
         </Routes>
       </div>
       <div className="footer">

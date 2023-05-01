@@ -1,6 +1,6 @@
-import firebase from 'firebase/app';
-import 'firebase/auth';
-import 'firebase/database';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
+import 'firebase/compat/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyB8CybzZByE7AMyTyyATPqRj2PtMvoR7eM",
@@ -15,7 +15,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
-const database = firebase.database();
+//const database = firebase.database();
+const firestore = firebase.firestore();
 
 const Firebase = () => {
   // Métodos de autenticación
@@ -52,42 +53,55 @@ const Firebase = () => {
   // Métodos de base de datos
   //el parametro tabla nos indica que tabla debe utilizar, ejemplo (usuarios, vehiculos, etc)
   const crearEnDB = (uid, tabla, data) => {
-    return database.ref(`${tabla}/${uid}`).set(data);
+    const db = firebase.firestore();
+    const docRef = db.collection(tabla).doc(uid);
+  
+    return docRef.set(data)
+      .then(() => {
+        console.log('Documento guardado correctamente en la colección', tabla, 'con id', uid);
+        return uid;
+      })
+      .catch((error) => {
+        console.error('Error al guardar el documento en la colección', tabla, 'con id', uid, ':', error);
+        throw error;
+      });
   };
 
   //el parametro tabla nos indica que tabla debe utilizar, ejemplo (usuarios, vehiculos, etc)
-  const crearEnDBSinUid = (tabla, data) => {
-    return collectionRef.push(data)
+  //puede que no funcione!!!!!!!!!!!!!!!!!!!!!!
+  /* const crearEnDBSinUid = (tabla, data) => {
+    const collectionRef = database.ref(); //esta linea
+    return collectionRef
+      .add(data)
       .then(() => {
         console.log('El registro se agregó con éxito');
       })
       .catch((error) => {
         console.error('Error al agregar el registro:', error);
       });
-  };
+  }; */
 
   //esta funcion puede traer un valor o todos, ejemplos
   //todos: tabla = usuarios
   //uno: tabla = usuarios/1234AABH
   //en este ultimo caso traera solo el campo que haga match
-  //En este código, se utiliza la función once() de Firebase para obtener el valor de la referencia una sola vez. Si la referencia no existe, la función devuelve null. Si se solicita un solo valor, se devuelve el valor correspondiente. Si se solicitan varios valores, se devuelve un objeto con todas las entradas.
-  const obtenerValorEnDB = (tabla) => {
-    return database.ref(tabla).once('value')
+  const obtenerValorEnDB = (tabla, id = null) => {
+    let query = firestore.collection(tabla);
+    if (id) {
+        query = query.doc(id);
+    }
+    return query.get()
       .then((snapshot) => {
-        // Si la referencia no existe, devolver null
-        if (!snapshot.exists()) {
-          return null;
-        }
         // Si se solicita un solo valor, devolver el valor correspondiente
-        if (snapshot.numChildren() === 1) {
-          return snapshot.val();
+        if (id) {
+          return snapshot.exists ? { id: snapshot.id, ...snapshot.data() } : null;
         }
-        // Si se solicitan varios valores, devolver un objeto con todas las entradas
-        const values = {};
-        snapshot.forEach((childSnapshot) => {
-          values[childSnapshot.key] = childSnapshot.val();
+        // Si se solicitan varios valores, devolver un array con todas las entradas
+        const data = [];
+        snapshot.forEach((doc) => {
+          data.push({ id: doc.id, ...doc.data() });
         });
-        return values;
+        return data;
       })
       .catch((error) => {
         console.error(error);
@@ -96,11 +110,46 @@ const Firebase = () => {
       });
   };
 
-  const actualizarEnDB = (uid, tabla, data) => {
-    return database.ref(`${tabla}/${uid}`).update(data);
+  const obtenerValorPorUnCampoEspecifico = (tabla, condiciones) => {
+    let query = firestore.collection(tabla);
+  
+    // Agregar las condiciones de búsqueda a la query
+    for (let campo in condiciones) {
+      if (condiciones[campo] !== null && condiciones[campo] !== undefined) {
+        query = query.where(campo, "==", condiciones[campo]);
+      }
+    }
+  
+    // Ejecutar la query y devolver los resultados
+    return query.get()
+      .then((querySnapshot) => {
+        // Si no hay resultados, devolver null
+        if (querySnapshot.empty) {
+          return null;
+        }
+        // Si se solicita un solo valor, devolver el valor correspondiente
+        if (querySnapshot.size === 1) {
+          return { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() };
+        }
+        // Si se solicitan varios valores, devolver un arreglo con todas las entradas
+        const data = [];
+        querySnapshot.forEach((doc) => {
+          data.push({ id: doc.id, ...doc.data() });
+        });
+        return data;
+      })
+      .catch((error) => {
+        console.error(error);
+        // Error al obtener el valor de la base de datos
+        return null;
+      });
   };
 
-  const actualizarEnDBSinUid = (tabla, campo, valor, data) => {
+  const actualizarEnDB = (id, tabla, data) => {
+    return firestore.collection(tabla).doc(id).update(data);
+  };
+
+  /* const actualizarEnDBSinUid = (tabla, campo, valor, data) => {
     // Realiza una consulta para buscar el documento que deseas actualizar
     return database.ref(tabla)
       .orderByChild(campo)
@@ -125,22 +174,22 @@ const Firebase = () => {
         console.error('Error al buscar el documento a actualizar:', error);
         return null;
       });
+  }; */
+
+  const borrarEnDB = (id, tabla) => {
+    return firestore.collection(tabla).doc(id).delete();
   };
 
-  const borrarEnDB = (uid, tabla) => {
-    return database.ref(`${tabla}/${uid}`).remove();
-  };
-
-  const obtenerCantidadFilas = (tabla, campo, valor) => {
+  /* const obtenerCantidadFilas = (tabla, campo, valor) => {
     return database
       .ref(tabla)
       .orderByChild(campo)
       .equalTo(valor)
       .once('value')
       .then((snapshot) => snapshot.numChildren());
-  };
+  }; */
 
-  const obtenerPuestosEstacionamientoPorEstacionamiento = (idEstacionamiento) => {
+  /* const obtenerPuestosEstacionamientoPorEstacionamiento = (idEstacionamiento) => {
     return database
       .ref('puestosEstacionamientos')
       .orderByChild('idEstacionamiento')
@@ -161,7 +210,7 @@ const Firebase = () => {
         console.error('Error al obtener puestos de estacionamiento:', error);
         return null;
       });
-  }
+  } */
 }
 
 export default Firebase;

@@ -1,0 +1,39 @@
+@import '../../../App.css';
+
+.btn-cliente{
+    background-color: rgb(13, 244, 13);
+    border: 1px solid black;
+}
+
+.btn-cliente:hover{
+    background-color: rgb(14, 201, 14);
+    border: 1px solid black;
+}
+
+.btn-duenio{
+    background-color: rgb(25, 115, 241);
+    border: 1px solid black;
+}
+
+.btn-duenio:hover{
+    background-color: rgb(19, 89, 186);
+    border: 1px solid black;
+}
+
+.fondo-izquierdo-cliente{
+    background-color: rgb(13, 244, 13);
+}
+
+.fondo-izquierdo-duenio{
+    background-color: rgb(25, 115, 241);
+}
+
+.formulario-registrarse{
+    height: 100%;
+    padding: 2rem;
+}
+
+.principal-registrarse{
+    padding: 2rem;
+    width: 100%;
+}

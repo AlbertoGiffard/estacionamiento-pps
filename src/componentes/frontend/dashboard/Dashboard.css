@@ -1,0 +1,18 @@
+@import '../../../App.css';
+
+.bg-list{
+    background-color: blue;
+}
+
+.container-dashboard{
+    min-height: 80vh;
+}
+
+.list-group-dashboard ul{
+    background-color: none;
+}
+
+.list-group-dashboard li:hover{
+    cursor: pointer;
+    font-weight: 600;
+}

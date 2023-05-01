@@ -3,14 +3,14 @@ import { v4 as uuid } from 'uuid';
 import Firebase from '../firebase/Firebase';
 import { useState, useEffect } from "react";
 
-const StatusUsuario = {
+export const StatusUsuario = {
     ACTIVO: 'ACTIVO',
     INACTIVO: 'INACTIVO',
     LISTA_NEGRA: 'LISTA_NEGRA',
     SIN_SUSCRIPCION: 'SIN_SUSCRIPCION'
 };
 
-const Roles = {
+export const Roles = {
     ADMIN: 'ADMIN',
     DUENIO: 'DUENIO',
     EMPLEADO: 'EMPLEADO',
@@ -35,19 +35,19 @@ const Usuario = (props) => {
     */
     const [telefono, setTelefono] = useState(props.telefono);
     const [direccion, setDireccion] = useState(props.direccion);
-    const [rol, setRol] = useState(verificarRol(props.rol));
+    const [rol, setRol] = useState(props.rol);
     const [fechaAlta, setFechaAlta] = useState(new Date());
     const [foto, setFoto] = useState(props.foto);
     const [idEstacionamiento, setIdEstacionamiento] = useState(props.idEstacionamiento);
     const [status, setStatus] = useState(props.status);
 
-    useEffect(() => {
-        registrar();
-    }, []);
+    /* useEffect(() => {
+        registrarse();
+    }, []); */
 
     //dependiendo de coomo venga este atributo lo definira con alguno de los roles previamente cargado
     const verificarRol = (rol) => {
-        resultado = Roles.CLIENTE;
+        let resultado = Roles.CLIENTE;
 
         switch (rol) {
             case 'admin':
@@ -106,15 +106,13 @@ const Usuario = (props) => {
     //el iniciar sesion si fue exitosa debe redirigir
     const iniciarSesion = (evento, email, contrasenia) => {
         evento.preventDefault();
-
-        const { email, contrasenia } = state;
         const firebase = new Firebase();
 
         firebase.iniciarSesion(email, contrasenia)
             .then((userCredential) => {
                 const user = userCredential.user;
                 console.log("Inicio de sesión exitoso para el usuario:", email);
-                resultado = true;
+                let resultado = true;
                 // Aquí deberia ver un redireccionamiento
             })
             .catch((error) => {
@@ -141,9 +139,23 @@ const Usuario = (props) => {
     const registrarse = (evento) => {
         evento.preventDefault();
 
-        const { idUsuario, nombre, apellido, dni, email, contrasenia, telefono, direccion, rol, fechaAlta, foto, idEstacionamiento, status, datosTarjeta } = state;
+        const usuario = {
+            idUsuario,
+            nombre,
+            apellido,
+            dni,
+            email,
+            contrasenia,
+            telefono,
+            direccion,
+            rol,
+            fechaAlta,
+            foto,
+            idEstacionamiento,
+            status,
+            datosTarjeta,
+        };
         const firebase = new Firebase();
-        let resultado = false;
 
         if (firebase.verificarMail(email)) {
             firebase.registrarse(email, contrasenia)
@@ -151,34 +163,18 @@ const Usuario = (props) => {
                     const user = userCredential.user;
                     const uid = user.uid;
 
-                    firebase.crearUsuarioDB(uid, 'usuarios', {
-                        uid,
-                        idUsuario,
-                        nombre,
-                        apellido,
-                        dni,
-                        email,
-                        contrasenia,
-                        telefono,
-                        direccion,
-                        rol,
-                        fechaAlta,
-                        foto,
-                        idEstacionamiento,
-                        status,
-                        datosTarjeta
-                    });
-
-                    resultado = true;
+                    return firebase.crearEnDB(uid, 'usuarios', usuario);
+                })
+                .then((uid) => {
+                    console.log('Usuario registrado correctamente con uid', uid);
+                    // hacer algo con el uid devuelto, como redirigir a una página de inicio
                 })
                 .catch((error) => {
-                    const errorCode = error.code;
-                    const errorMessage = error.message;
-                    console.error(errorMessage);
+                    console.error('Error al registrar usuario:', error);
                 });
+        } else {
+            return Promise.resolve(false);
         }
-
-        return resultado;
     };
 
     const obtenerUsuarios = () => {
@@ -206,7 +202,7 @@ const Usuario = (props) => {
 
     //este nos servirá para traer un usuario en particular, por el idUsuario por ejemplo
     //como por ejemplo los que esten en lista negra
-    obtenerUsuariosPorCampo = (filtro) => {
+    const obtenerUsuariosPorCampo = (filtro) => {
         const firebase = new Firebase();
 
         firebase.obtenerValorEnDB(`usuarios/${filtro}`)
@@ -235,7 +231,16 @@ const Usuario = (props) => {
     const actualizar = (evento) => {
         evento.preventDefault();
         const firebase = new Firebase();
-        const { idUsuario, email, contrasenia, datosTarjeta, telefono, direccion, foto, status } = state;
+        const usuario = {
+            idUsuario,
+            email,
+            contrasenia,
+            telefono,
+            direccion,
+            foto,
+            status,
+            datosTarjeta,
+        };
 
         firebase.actualizarEnDBSinUid('usuarios', 'idUsuario', idUsuario, {
             email,
@@ -247,7 +252,7 @@ const Usuario = (props) => {
             status
         })
             .then(() => {
-                resultado = true;
+                let resultado = true;
             })
             .catch((error) => {
                 const errorCode = error.code;
