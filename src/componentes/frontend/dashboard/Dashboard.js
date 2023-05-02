@@ -10,8 +10,8 @@ const Dashboard = () => {
 
     return (
         <div className='container-dashboard row h-100'>
-            <div className="col-md-2 bg-list h-100">
-                <ul class="list-group list-group-dashboard list-group-flush">
+            <div className="col-md-2 bg-list">
+                <ul class="list-group list-group-dashboard bg-list list-group-flush">
                     <li class="list-group-item text-white fs-5"><i className="bi bi-calendar-plus md-icon"></i> Reservas</li>
                     <li class="list-group-item text-white fs-5"><i className="bi bi-car-front md-icon"></i> Vehiculos</li>
                     <li class="list-group-item text-white fs-5"><i className="bi bi-geo-alt md-icon"></i> Mapa</li>

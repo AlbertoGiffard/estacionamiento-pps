@@ -84,8 +84,8 @@ const AltaUsuario = () => {
         };
 
         const usuarioComponent = <Usuario {...nuevoUsuario} />; // crea una instancia del componente Usuario con los datos del nuevo usuario
-        /* QUe hacer aca?? */
-        const { registrarse } = usuarioComponent //???
+        /* Que hacer aca?? */
+        const registrarse = usuarioComponent //???
 
         registrarse.then(() => {
             const nuevoVehiculo = {

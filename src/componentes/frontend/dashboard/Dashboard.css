@@ -5,11 +5,12 @@
 }
 
 .container-dashboard{
-    min-height: 80vh;
+    min-height: 85vh;
 }
 
 .list-group-dashboard ul{
     background-color: none;
+    --bs-list-group-bg: none !important;
 }
 
 .list-group-dashboard li:hover{
