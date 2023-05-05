@@ -1,3 +1,4 @@
+import React from 'react';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
@@ -18,13 +19,31 @@ const auth = firebase.auth();
 //const database = firebase.database();
 const firestore = firebase.firestore();
 
-const Firebase = () => {
+class Firebase extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      user: null,
+      loading: true
+    };
+  }
+
+  componentDidMount() {
+    // Inicializa Firebase con la configuración
+    firebase.initializeApp(firebaseConfig);
+
+    // Agrega un listener para el cambio de estado de autenticación
+    firebase.auth().onAuthStateChanged(user => {
+      this.setState({ user, loading: false });
+    });
+  }
+  
   // Métodos de autenticación
-  const iniciarSesion = (email, contrasenia) => {
+  iniciarSesion = (email, contrasenia) => {
     return auth.signInWithEmailAndPassword(email, contrasenia);
   };
   //verifica si existe el mail o no
-  const verificarMail = (email) => {
+  verificarMail = (email) => {
     return auth.fetchSignInMethodsForEmail(email)
       .then((signInMethods) => {
         if (signInMethods && signInMethods.length > 0) {
@@ -42,17 +61,17 @@ const Firebase = () => {
       });
   }
 
-  const registrarse = (email, contrasenia) => {
+  registrarse = (email, contrasenia) => {
     return auth.createUserWithEmailAndPassword(email, contrasenia);
   };
 
-  const cerrarSesion = () => {
+  cerrarSesion = () => {
     return auth.signOut();
   };
 
   // Métodos de base de datos
   //el parametro tabla nos indica que tabla debe utilizar, ejemplo (usuarios, vehiculos, etc)
-  const crearEnDB = (uid, tabla, data) => {
+  crearEnDB = (uid, tabla, data) => {
     const db = firebase.firestore();
     const docRef = db.collection(tabla).doc(uid);
   
@@ -85,7 +104,7 @@ const Firebase = () => {
   //todos: tabla = usuarios
   //uno: tabla = usuarios/1234AABH
   //en este ultimo caso traera solo el campo que haga match
-  const obtenerValorEnDB = (tabla, id = null) => {
+  obtenerValorEnDB = (tabla, id = null) => {
     let query = firestore.collection(tabla);
     if (id) {
         query = query.doc(id);
@@ -110,7 +129,7 @@ const Firebase = () => {
       });
   };
 
-  const obtenerValorPorUnCampoEspecifico = (tabla, condiciones) => {
+  obtenerValorPorUnCampoEspecifico = (tabla, condiciones) => {
     let query = firestore.collection(tabla);
   
     // Agregar las condiciones de búsqueda a la query
@@ -145,7 +164,7 @@ const Firebase = () => {
       });
   };
 
-  const actualizarEnDB = (id, tabla, data) => {
+  actualizarEnDB = (id, tabla, data) => {
     return firestore.collection(tabla).doc(id).update(data);
   };
 
@@ -176,7 +195,7 @@ const Firebase = () => {
       });
   }; */
 
-  const borrarEnDB = (id, tabla) => {
+  borrarEnDB = (id, tabla) => {
     return firestore.collection(tabla).doc(id).delete();
   };
 

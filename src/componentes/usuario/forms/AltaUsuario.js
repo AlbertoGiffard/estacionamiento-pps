@@ -83,11 +83,9 @@ const AltaUsuario = () => {
             status: datos.status
         };
 
-        const usuarioComponent = <Usuario {...nuevoUsuario} />; // crea una instancia del componente Usuario con los datos del nuevo usuario
-        /* Que hacer aca?? */
-        const registrarse = usuarioComponent //???
+        const usuarioComponent = new Usuario(nuevoUsuario); // crea una instancia del componente Usuario con los datos del nuevo usuario
 
-        registrarse.then(() => {
+        usuarioComponent.registrarse().then(() => {
             const nuevoVehiculo = {
                 idVehiculo: uuid(),
                 usuario: nuevoUsuario,
@@ -98,9 +96,8 @@ const AltaUsuario = () => {
                 color: datos.color,
                 status: StatusVehiculo.ACTIVO
             };
-            const vehiculoComponent = <Vehiculo {...nuevoUsuario} />; // crea una instancia del componente Usuario con los datos del nuevo usuario
-            const { registrar } = vehiculoComponent.props; 
-            registrar()
+            const vehiculoComponent = new Vehiculo(nuevoVehiculo); // crea una instancia del componente Usuario con los datos del nuevo usuario
+            vehiculoComponent.registrar()
                 .then(() => {
                     console.log("todo un exito");
                 })

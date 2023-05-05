@@ -17,36 +17,35 @@ export const Roles = {
     CLIENTE: 'CLIENTE'
 };
 
-const Usuario = (props) => {
-    const [idUsuario, setIdUsuario] = useState(props.idUsuario);
-    const [nombre, setNombre] = useState(props.nombre);
-    const [apellido, setApellido] = useState(props.apellido);
-    const [dni, setDni] = useState(props.dni);
-    const [email, setEmail] = useState(props.email);
-    const [contrasenia, setContrasenia] = useState(props.contrasenia);
-    const [datosTarjeta, setDatosTarjeta] = useState(props.datosTarjeta);//Este dato sera un object
-    /* 
-        datosTarjeta: {
-            nombreTitular,
-            numero,
-            fechaVencimiento,
-            codSeguridad
-        }
-    */
-    const [telefono, setTelefono] = useState(props.telefono);
-    const [direccion, setDireccion] = useState(props.direccion);
-    const [rol, setRol] = useState(props.rol);
-    const [fechaAlta, setFechaAlta] = useState(new Date());
-    const [foto, setFoto] = useState(props.foto);
-    const [idEstacionamiento, setIdEstacionamiento] = useState(props.idEstacionamiento);
-    const [status, setStatus] = useState(props.status);
+//esto debe ser el extend Component
+//ver todas las demas clases
+class Usuario extends Component {
+    constructor(props) {
+      super(props);
+      this.state = {
+        idUsuario: props.idUsuario,
+        nombre: props.nombre,
+        apellido: props.apellido,
+        dni: props.dni,
+        email: props.email,
+        contrasenia: props.contrasenia,
+        datosTarjeta: props.datosTarjeta,
+        telefono: props.telefono,
+        direccion: props.direccion,
+        rol: props.rol,
+        fechaAlta: new Date(),
+        foto: props.foto,
+        idEstacionamiento: props.idEstacionamiento,
+        status: props.status
+      };
+    }
 
     /* useEffect(() => {
         registrarse();
     }, []); */
 
     //dependiendo de coomo venga este atributo lo definira con alguno de los roles previamente cargado
-    const verificarRol = (rol) => {
+    verificarRol = (rol) => {
         let resultado = Roles.CLIENTE;
 
         switch (rol) {
@@ -69,42 +68,42 @@ const Usuario = (props) => {
         return resultado;
     }
 
-    const modificarStatus = (status) => {
+    modificarStatus = (status) => {
         switch (status) {
             case 'activo':
-                setStatus(StatusUsuario.ACTIVO);
+                this.setState({ status: StatusUsuario.ACTIVO });
                 break;
-
-            case 'inactivo':
-                setStatus(StatusUsuario.INACTIVO);
+                
+                case 'inactivo':
+                this.setState({ status: StatusUsuario.INACTIVO });
                 break;
 
             case 'lista_negra':
-                setStatus(StatusUsuario.LISTA_NEGRA);
+                this.setState({ status: StatusUsuario.LISTA_NEGRA });
                 break;
 
             default:
-                setStatus(StatusUsuario.SIN_SUSCRIPCION);
+                this.setState({ status: StatusUsuario.SIN_SUSCRIPCION });
                 break;
         }
 
-        return actualizar();
+        return this.actualizar();
     }
 
     /* Sobrescribe todos los campos, aca la idea seria que si solo modifica el email por ejemplo,  
     los demas campos sean los mismos, es decir pasarle los mismos datos que ya tenia */
-    const modificarCampos = (email, contrasenia, telefono, foto, datosTarjeta) => {
-        setEmail(email);
-        setContrasenia(contrasenia);
-        setTelefono(telefono);
-        setFoto(foto);
-        setDatosTarjeta(datosTarjeta);
+    modificarCampos = (email, contrasenia, telefono, foto, datosTarjeta) => {
+        this.setState({ email: email });
+        this.setState({ contrasenia: contrasenia });
+        this.setState({ telefono: telefono });
+        this.setState({ foto: foto });
+        this.setState({ datosTarjeta: datosTarjeta });
 
-        return actualizar();
+        return this.actualizar();
     }
 
     //el iniciar sesion si fue exitosa debe redirigir
-    const iniciarSesion = (evento, email, contrasenia) => {
+    iniciarSesion = (evento, email, contrasenia) => {
         evento.preventDefault();
         const firebase = new Firebase();
 
@@ -122,7 +121,7 @@ const Usuario = (props) => {
             });
     }
 
-    const cerrarSesion = () => {
+    cerrarSesion = () => {
         const firebase = new Firebase();
 
         firebase.cerrarSesion()
@@ -136,10 +135,9 @@ const Usuario = (props) => {
 
     //realiza el registro de nuevos usuarios y los carga a la base de datos
     //el .then nos hará saber a donde se llame esta operacion si fue ok o no
-    const registrarse = (evento) => {
-        evento.preventDefault();
+    registrarse = () => {
 
-        const usuario = {
+        const  {
             idUsuario,
             nombre,
             apellido,
@@ -154,7 +152,7 @@ const Usuario = (props) => {
             idEstacionamiento,
             status,
             datosTarjeta,
-        };
+        } = this.state;
         const firebase = new Firebase();
 
         if (firebase.verificarMail(email)) {
@@ -163,7 +161,7 @@ const Usuario = (props) => {
                     const user = userCredential.user;
                     const uid = user.uid;
 
-                    return firebase.crearEnDB(uid, 'usuarios', usuario);
+                    return firebase.crearEnDB(uid, 'usuarios', this.state);
                 })
                 .then((uid) => {
                     console.log('Usuario registrado correctamente con uid', uid);
@@ -177,7 +175,7 @@ const Usuario = (props) => {
         }
     };
 
-    const obtenerUsuarios = () => {
+    obtenerUsuarios = () => {
         const firebase = new Firebase();
 
         firebase.obtenerTodosEnDB('usuarios')
@@ -202,7 +200,7 @@ const Usuario = (props) => {
 
     //este nos servirá para traer un usuario en particular, por el idUsuario por ejemplo
     //como por ejemplo los que esten en lista negra
-    const obtenerUsuariosPorCampo = (filtro) => {
+    obtenerUsuariosPorCampo = (filtro) => {
         const firebase = new Firebase();
 
         firebase.obtenerValorEnDB(`usuarios/${filtro}`)
@@ -228,10 +226,10 @@ const Usuario = (props) => {
             });
     }
 
-    const actualizar = (evento) => {
+    actualizar = (evento) => {
         evento.preventDefault();
         const firebase = new Firebase();
-        const usuario = {
+        const {
             idUsuario,
             email,
             contrasenia,
@@ -240,7 +238,7 @@ const Usuario = (props) => {
             foto,
             status,
             datosTarjeta,
-        };
+        } = this.state;
 
         firebase.actualizarEnDBSinUid('usuarios', 'idUsuario', idUsuario, {
             email,
@@ -261,14 +259,30 @@ const Usuario = (props) => {
             });
     }
 
-    /* render() {
-        // Código JSX para renderizar el componente
+    render() {
+        const {
+          idUsuario,
+          nombre,
+          apellido,
+          dni,
+          email,
+          contrasenia,
+          datosTarjeta,
+          telefono,
+          direccion,
+          rol,
+          fechaAlta,
+          foto,
+          idEstacionamiento,
+          status
+        } = this.state;
+    
         return (
-            <div>
-                <p>Dato</p>
-            </div>
+          <div>
+            {/* Render the component using the state values */}
+          </div>
         );
-    } */
+      }
 }
 
 export default Usuario;

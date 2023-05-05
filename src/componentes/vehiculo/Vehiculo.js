@@ -17,23 +17,28 @@ export const StatusVehiculo = {
     EN_PUESTO: 'EN_PUESTO'
 };
 
-const Vehiculo = (props) => {
-    const [idVehiculo, setIdVehiculo] = useState(props.idVehiculo);
-    const [usuario, setUsuario] = useState(props.Usuario);
-    const [marca, setMarca] = useState(props.marca);
-    const [modelo, setModelo] = useState(props.modelo);
-    const [patente, setPatente] = useState(props.patente);
-    const [tipo, setTipo] = useState(validarTipo(props.tipoVehiculo));
-    const [color, setColor] = useState(props.color);
-    const [totalReservas, setTotalReservas] = useState(props.totalReservas);
-    const [status, setStatus] = useState(props.statusVehiculo);
+class Vehiculo extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            idVehiculo: props.idVehiculo,
+            usuario: props.Usuario,
+            marca: props.marca,
+            modelo: props.modelo,
+            patente: props.patente,
+            tipo: props.tipoVehiculo,
+            color: props.color,
+            totalReservas: props.totalReservas,
+            status: props.statusVehiculo,
+        };
+    }
 
     /* useEffect(() => {
         registrar();
     }, []); */
 
     //dependiendo de como venga este atributo lo definira con alguno de los roles previamente cargado
-    const validarTipo = (tipo) => {
+    validarTipo = (tipo) => {
         let resultado = TipoVehiculo.AUTO;
 
         switch (tipo) {
@@ -57,18 +62,18 @@ const Vehiculo = (props) => {
     }
 
     //si el usuario tiene <= 3 autos activo pasa hacer inactivo la nueva instancia
-    const validarStatus = () => {
+    validarStatus = () => {
         const firebase = new Firebase();
-        const vehiculo = {
+        const {
             usuario
-        }
+        } = this.state;
 
         firebase.obtenerCantidadFilas('vehiculos', 'idUsuario', usuario.idUsuario)
             .then((cantidad) => {
                 if (cantidad < 3) {
-                    setStatus(StatusVehiculo.ACTIVO);
+                    this.setState({ status: StatusVehiculo.ACTIVO });
                 } else {
-                    setStatus(StatusVehiculo.INACTIVO);
+                    this.setState({ status: StatusVehiculo.INACTIVO });
                 }
             })
             .catch((error) => {
@@ -79,48 +84,48 @@ const Vehiculo = (props) => {
     }
 
 
-    const modificarStatus = (status) => {
+    modificarStatus = (status) => {
         let resultado = true;
 
         switch (status) {
             case 'activo':
                 //valida que no tenga ya 3 vehiculos activos
-                if (validarStatus() == StatusVehiculo.ACTIVO) {
-                    setStatus(StatusVehiculo.ACTIVO);
+                if (this.validarStatus() == StatusVehiculo.ACTIVO) {
+                    this.setState({ status: StatusVehiculo.ACTIVO });
                 } else {
                     resultado = false;
                 }
                 break;
 
             case 'inactivo':
-                setStatus(StatusVehiculo.INACTIVO);
+                this.setState({ status: StatusVehiculo.INACTIVO });
                 break;
 
             default:
-                setStatus(StatusVehiculo.EN_PUESTO);
+                this.setState({ status: StatusVehiculo.EN_PUESTO });
                 break;
         }
 
         if (resultado) {
-            resultado = actualizar();
+            resultado = this.actualizar();
         }
 
         return resultado;
     }
 
     //suma una reserva al vehiculo no importa el status final de la reserva, se suma al contador del vehiculo
-    const sumarReserva = () => {
-        const vehiculo = { totalReservas };
-        let total = vehiculo.totalReservas++;
+    sumarReserva = () => {
+        const { totalReservas } = this.state;
+        let total = totalReservas++;
 
-        setTotalReservas(total);
-        return actualizar();
+        this.setState({ totalReservas: total });
+        return this.actualizar();
     }
 
-    const registrar = (evento) => {
+    registrar = (evento) => {
         evento.preventDefault();
 
-        const vehiculo = {
+        const {
             idVehiculo,
             usuario,
             marca,
@@ -130,7 +135,7 @@ const Vehiculo = (props) => {
             color,
             totalReservas,
             status
-        }
+        } = this.state;
         const firebase = new Firebase();
 
         firebase.obtenerValorEnDB("usuarios", { idUsuario: usuario.idUsuario })
@@ -168,14 +173,14 @@ const Vehiculo = (props) => {
             });
     };
 
-    const actualizar = (evento) => {
+    actualizar = (evento) => {
         evento.preventDefault();
         const firebase = new Firebase();
-        const vehiculo = {
+        const  {
             idVehiculo,
             totalReservas,
             status
-        }
+        } = this.state;
 
         firebase.actualizarEnDBSinUid('vehiculos', 'idVehiculo', idVehiculo, {
             totalReservas,
@@ -191,7 +196,7 @@ const Vehiculo = (props) => {
             });
     }
 
-    const obtenerVehiculos = () => {
+    obtenerVehiculos = () => {
         const firebase = new Firebase();
 
         firebase.obtenerTodosEnDB('vehiculos')
@@ -215,7 +220,7 @@ const Vehiculo = (props) => {
     }
 
     //este nos servirá para traer un vehiculo en particular, por el idUsuario por ejemplo
-    const obtenerVehiculosPorCampo = (filtro) => {
+    obtenerVehiculosPorCampo = (filtro) => {
         const firebase = new Firebase();
 
         firebase.obtenerValorEnDB(`vehiculos/idUsuario/${filtro}`)
