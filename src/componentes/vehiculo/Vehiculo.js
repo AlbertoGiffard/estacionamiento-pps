@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import { v4 as uuid } from 'uuid';
 import Firebase from '../firebase/Firebase';
-import { useState, useEffect } from "react";
 
 
 export const TipoVehiculo = {
@@ -22,14 +20,14 @@ class Vehiculo extends Component {
         super(props);
         this.state = {
             idVehiculo: props.idVehiculo,
-            usuario: props.Usuario,
+            usuario: props.usuario,
             marca: props.marca,
             modelo: props.modelo,
             patente: props.patente,
-            tipo: props.tipoVehiculo,
+            tipo: props.tipo,
             color: props.color,
             totalReservas: props.totalReservas,
-            status: props.statusVehiculo,
+            status: props.status,
         };
     }
 
@@ -79,7 +77,7 @@ class Vehiculo extends Component {
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
-                console.error(errorMessage);
+                console.error(errorCode, errorMessage);
             });
     }
 
@@ -90,7 +88,7 @@ class Vehiculo extends Component {
         switch (status) {
             case 'activo':
                 //valida que no tenga ya 3 vehiculos activos
-                if (this.validarStatus() == StatusVehiculo.ACTIVO) {
+                if (this.validarStatus() === StatusVehiculo.ACTIVO) {
                     this.setState({ status: StatusVehiculo.ACTIVO });
                 } else {
                     resultado = false;
@@ -115,60 +113,23 @@ class Vehiculo extends Component {
 
     //suma una reserva al vehiculo no importa el status final de la reserva, se suma al contador del vehiculo
     sumarReserva = () => {
-        const { totalReservas } = this.state;
-        let total = totalReservas++;
+        let total = this.state.totalReservas + 1;
 
         this.setState({ totalReservas: total });
         return this.actualizar();
     }
 
     registrar = (evento) => {
-        evento.preventDefault();
-
-        const {
-            idVehiculo,
-            usuario,
-            marca,
-            modelo,
-            patente,
-            tipo,
-            color,
-            totalReservas,
-            status
-        } = this.state;
-        const firebase = new Firebase();
-
-        firebase.obtenerValorEnDB("usuarios", { idUsuario: usuario.idUsuario })
-            .then((usuarioEncontrado) => {
-                // Si el usuario existe, crear el vehículo
-                if (usuarioEncontrado) {
-                    firebase.crearEnDB(idVehiculo, "vehiculos", {
-                        idVehiculo,
-                        usuario,
-                        marca,
-                        modelo,
-                        patente,
-                        tipo,
-                        color,
-                        totalReservas,
-                        status
-                    })
-                        .then(() => {
-                            return Promise.resolve(true);
-                        })
-                        .catch((error) => {
-                            const errorCode = error.code;
-                            const errorMessage = error.message;
-                            console.error(errorMessage);
-                            return Promise.resolve(false);
-                        });
-                } else {
-                    console.error("El usuario no existe en la base de datos.");
-                    return Promise.resolve(false);
-                }
+        const firebase = new Firebase();  
+        
+        return firebase.crearEnDBSinUid("vehiculos", this.state)
+            .then(() => {
+                return Promise.resolve(true);
             })
             .catch((error) => {
-                console.error(error);
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.error(errorCode, errorMessage);
                 return Promise.resolve(false);
             });
     };
@@ -176,7 +137,7 @@ class Vehiculo extends Component {
     actualizar = (evento) => {
         evento.preventDefault();
         const firebase = new Firebase();
-        const  {
+        const {
             idVehiculo,
             totalReservas,
             status

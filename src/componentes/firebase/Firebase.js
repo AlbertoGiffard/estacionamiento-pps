@@ -77,11 +77,27 @@ class Firebase extends React.Component {
   
     return docRef.set(data)
       .then(() => {
+        console.log('Documento guardado correctamente en la colección', tabla, 'con id', uid);     
+        return uid;   
+      })
+      .catch((error) => {
+        console.error('Error al guardar el documento en la colección', tabla, 'con id', uid, ':', error);
+        throw error;
+      });
+  };
+
+  crearEnDBSinUid = (tabla, data) => {
+    const db = firebase.firestore();
+    const collectionRef = db.collection(tabla);
+    
+    return collectionRef.add(data)
+      .then((docRef) => {
+        const uid = docRef.id;
         console.log('Documento guardado correctamente en la colección', tabla, 'con id', uid);
         return uid;
       })
       .catch((error) => {
-        console.error('Error al guardar el documento en la colección', tabla, 'con id', uid, ':', error);
+        console.error('Error al guardar el documento en la colección', tabla, ':', error);
         throw error;
       });
   };
@@ -105,7 +121,9 @@ class Firebase extends React.Component {
   //uno: tabla = usuarios/1234AABH
   //en este ultimo caso traera solo el campo que haga match
   obtenerValorEnDB = (tabla, id = null) => {
+    
     let query = firestore.collection(tabla);
+    console.log("id:", id);
     if (id) {
         query = query.doc(id);
     }

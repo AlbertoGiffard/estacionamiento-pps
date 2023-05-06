@@ -156,7 +156,7 @@ class Usuario extends Component {
         const firebase = new Firebase();
 
         if (firebase.verificarMail(email)) {
-            firebase.registrarse(email, contrasenia)
+            return firebase.registrarse(email, contrasenia)
                 .then((userCredential) => {
                     const user = userCredential.user;
                     const uid = user.uid;
@@ -166,6 +166,7 @@ class Usuario extends Component {
                 .then((uid) => {
                     console.log('Usuario registrado correctamente con uid', uid);
                     // hacer algo con el uid devuelto, como redirigir a una página de inicio
+                    return uid;
                 })
                 .catch((error) => {
                     console.error('Error al registrar usuario:', error);

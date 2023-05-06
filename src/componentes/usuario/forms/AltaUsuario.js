@@ -3,6 +3,7 @@ import Usuario, { Roles, StatusUsuario, registrarseUsuario } from '../Usuario';
 import './AltaUsuario.css';
 import React, { useState, useEffect } from "react";
 import { v4 as uuid } from 'uuid';
+import { useNavigate } from 'react-router-dom';
 
 const AltaUsuario = () => {
     const [datos, setDatos] = useState({
@@ -27,6 +28,8 @@ const AltaUsuario = () => {
     });
     const [submitted, setSubmitted] = useState(false);
     const [datosActualizados, setDatosActualizados] = useState(true);
+
+    const navigate = useNavigate();
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -88,18 +91,20 @@ const AltaUsuario = () => {
         usuarioComponent.registrarse().then(() => {
             const nuevoVehiculo = {
                 idVehiculo: uuid(),
-                usuario: nuevoUsuario,
+                usuario: usuarioComponent.props,
                 marca: datos.marca,
                 modelo: datos.modelo,
                 patente: datos.patente,
-                tipo: datos.tipo,
+                tipo: datos.tipo || TipoVehiculo.AUTO,
                 color: datos.color,
-                status: StatusVehiculo.ACTIVO
+                status: StatusVehiculo.ACTIVO,
+                totalReservas: 0
             };
             const vehiculoComponent = new Vehiculo(nuevoVehiculo); // crea una instancia del componente Usuario con los datos del nuevo usuario
             vehiculoComponent.registrar()
                 .then(() => {
-                    console.log("todo un exito");
+                    console.log("todo un exito");                    
+                    navigate('/dashboard/');
                 })
                 .catch((error) => {
                     // Manejar errores aquí
@@ -111,6 +116,7 @@ const AltaUsuario = () => {
                 console.error("usuario" + error);
             });
     }
+
 
     return (
         <form className="needs-validation" onSubmit={handleSubmit} noValidate>
