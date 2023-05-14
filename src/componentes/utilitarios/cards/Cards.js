@@ -3,16 +3,16 @@ import { Link } from 'react-router-dom';
 import React from 'react';
 
 const Cards = (props) => {
-    const { titulo, mensaje, link } = props;
-
+    const { titulo, mensaje, link, user } = props;
+    console.log("cards", user);
     return (
         <div className="card size-card blur-bg">
             <div className="card-body d-flex flex-column">
                 <h5 className="card-title text-center">{titulo}</h5>
                 <p className="card-text">{mensaje}.</p>
                 <div className='mt-auto'>
-                    <Link to={`${link}`} className="nav-link active">
-                        <a className='btn btn-primary ml-3'>Entrar</a>
+                    <Link to={{ pathname: link, state: { userData: user } }} className="nav-link active">
+                        <div className='btn btn-primary ml-3'>Entrar</div>
                     </Link>
                 </div>
             </div>

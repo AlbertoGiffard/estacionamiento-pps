@@ -4,46 +4,50 @@ import Firebase from '../firebase/Firebase';
 import { useState, useEffect } from "react";
 
 
-const TipoReserva = {
+export const TipoReserva = {
     HORA: 'HORA',
     SEMANA: 'SEMANA',
     MES: 'MES'
 };
 
-const StatusReserva = {
+export const StatusReserva = {
     POR_CONFIRMAR: 'POR_CONFIRMAR',
     CONFIRMADA: 'CONFIRMADA',
     CANCELADA: 'CANCELADA',
     SIN_RESPUESTA: 'SIN_RESPUESTA'
 };
 
-const StatusPago = {
+export const StatusPago = {
     POR_PAGAR: 'POR_PAGAR',
     PAGADA: 'PAGADA',
     CANCELADA: 'CANCELADA'
 };
 
-const Reserva = (props) => {
-    const [idReserva, setIdReserva] = useState(uuid());
-    const [estacionamiento, setEstacionamiento] = useState(props.estacionamiento);
-    const [usuario, setUsuario] = useState(props.usuario);
-    const [vehiculo, setVehiculo] = useState(props.vehiculo);
-    const [tipo, setTipo] = useState(verificarTipo(props.tipoReserva));
-    const [fechaLlegada, setFechaLlegada] = useState(props.fechaLlegada);
-    const [fechaSalida, setFechaSalida] = useState(props.fechaSalida);
-    const [status, setStatus] = useState(StatusReserva.POR_CONFIRMAR);
-    const [statusPago, setStatusPago] = useState(StatusPago.POR_PAGAR);
-    const [descuento, setDescuento] = useState(props.descuento);
-    const [total, setTotal] = useState(props.total);
+class Reserva extends Component {
+    constructor(props) {
+        super(props);
 
-    useEffect(() => {
-        registrar();
-    }, []);
+        this.state = {
+            idReserva: uuid(),
+            estacionamiento: props.estacionamiento,
+            usuario: props.usuario,
+            vehiculo: props.vehiculo,
+            tipo: props.tipoReserva,
+            fechaLlegada: props.fechaLlegada,
+            fechaSalida: props.fechaSalida,
+            status: StatusReserva.POR_CONFIRMAR,
+            statusPago: StatusPago.POR_PAGAR,
+            descuento: props.descuento,
+            total: props.total
+        };
+
+        this.registrar();
+    }
 
 
     //Dependiendo de coomo venga este atributo lo definira con alguno de los tipos previamente cargado
-    const verificarTipo = (tipoReserva) => {
-        resultado = TipoReserva.MES;
+    verificarTipo = (tipoReserva) => {
+        let resultado = TipoReserva.MES;
 
         switch (tipoReserva) {
             case 'hora':
@@ -61,10 +65,8 @@ const Reserva = (props) => {
         return resultado;
     }
 
-    const registrar = (evento) => {
-        evento.preventDefault();
-
-        const { idReserva, estacionamiento, usuario, vehiculo, tipo, fechaLlegada, fechaSalida, status, statusPago, descuento, total } = state;
+    registrar = (evento) => {
+        const { idReserva, estacionamiento, usuario, vehiculo, tipo, fechaLlegada, fechaSalida, status, statusPago, descuento, total } = this.state;
         const firebase = new Firebase();
         let resultado = false;
 
@@ -91,10 +93,9 @@ const Reserva = (props) => {
             });
     };
 
-    const actualizar = (evento) => {
-        evento.preventDefault();
+    actualizar = (evento) => {
         const firebase = new Firebase();
-        const { idReserva, vehiculo, fechaLlegada, fechaSalida, status, statusPago, descuento, total } = state;
+        const { idReserva, vehiculo, fechaLlegada, fechaSalida, status, statusPago, descuento, total } = this.state;
 
         firebase.actualizarEnDBSinUid('reservas', 'idReserva', idReserva, {
             vehiculo,
@@ -115,7 +116,7 @@ const Reserva = (props) => {
             });
     }
 
-    const obtenerReservas = () => {
+    obtenerReservas = () => {
         const firebase = new Firebase();
 
         firebase.obtenerTodosEnDB('reservas')
@@ -139,7 +140,7 @@ const Reserva = (props) => {
     }
 
     //Este nos servirá para traer una reserva en particular, por el idReserva por ejemplo
-    const obtenerReservasPorCampo = (filtro) => {
+    obtenerReservasPorCampo = (filtro) => {
         const firebase = new Firebase();
 
         firebase.obtenerValorEnDB(`reservas/${filtro}`)
@@ -165,49 +166,63 @@ const Reserva = (props) => {
             });
     }
 
-    const modificarStatus = (status) => {
+    modificarStatus = (status) => {
         switch (status) {
             case 'confirmada':
-                setStatus(StatusReserva.CONFIRMADA);
+                this.state = {
+                    status: StatusReserva.CONFIRMADA
+                };
                 break;
 
             case 'cancelada':
-                setStatus(StatusReserva.CANCELADA);
+                this.state = {
+                    status: StatusReserva.CANCELADA
+                };
                 break;
 
             case 'sin_respuesta':
-                setStatus(StatusReserva.SIN_RESPUESTA);
+                this.state = {
+                    status: StatusReserva.SIN_RESPUESTA
+                };
                 break;
 
             default:
-                setStatus(StatusReserva.POR_CONFIRMAR);
+                this.state = {
+                    status: StatusReserva.POR_CONFIRMAR
+                };
                 break;
         }
 
-        return actualizar();
+        return this.actualizar();
     }
 
-    const modificarPago = (statusPago) => {
+    modificarPago = (statusPago) => {
         switch (statusPago) {
             case 'pagada':
-                setStatus(StatusPago.PAGADA);
+                this.state = {
+                    statusPago: StatusPago.PAGADA
+                };
                 break;
-    
+
             case 'cancelada':
-                setStatus(StatusPago.CANCELADA);
+                this.state = {
+                    statusPago: StatusPago.CANCELADA
+                };
                 break;
-    
+
             default:
-                setStatus(StatusPago.POR_PAGAR);
+                this.state = {
+                    statusPago: StatusPago.POR_PAGAR
+                };
                 break;
         }
-    
-        return actualizar();
+
+        return this.actualizar();
     }
 
     //El conDescuento nos indicara si se le aplica o no, sera un boolean
-    const totalReserva = (conDescuento) => {
-        const { descuento, total } = state;
+    totalReserva = (conDescuento) => {
+        const { descuento, total } = this.state;
         let totalAPagar;
 
         if (conDescuento) {
@@ -216,10 +231,12 @@ const Reserva = (props) => {
             totalAPagar = total;
         }
 
-        setTotal(totalAPagar);
-        actualizar()
+        this.state = {
+            total: totalAPagar
+        };
+        this.actualizar()
             .then(() => {
-                return state.total;
+                return this.state.total;
             })
             .catch((error) => {
                 const errorCode = error.code;

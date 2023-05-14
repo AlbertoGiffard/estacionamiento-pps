@@ -10,11 +10,11 @@ const MenuLateral = (props) => {
                     <i className="bi bi-calendar-plus md-icon"></i> Reservas
                 </li>
             </Link>
-            <li class="list-group-item text-white fs-5"><i className="bi bi-car-front md-icon"></i> Vehiculos</li>
-            <li class="list-group-item text-white fs-5"><i className="bi bi-geo-alt md-icon"></i> Mapa</li>
-            <li class="list-group-item text-white fs-5"><i className="bi bi-p-square md-icon"></i> Estacionamientos</li>
-            <li class="list-group-item text-white fs-5"><i className="bi bi-bicycle md-icon"></i> Puestos</li>
-            <li class="list-group-item text-white fs-5"><i className="bi bi-person-square md-icon"></i> Mi Perfil</li>
+            <li className="list-group-item text-white fs-5"><i className="bi bi-car-front md-icon"></i> Vehiculos</li>
+            <li className="list-group-item text-white fs-5"><i className="bi bi-geo-alt md-icon"></i> Mapa</li>
+            <li className="list-group-item text-white fs-5"><i className="bi bi-p-square md-icon"></i> Estacionamientos</li>
+            <li className="list-group-item text-white fs-5"><i className="bi bi-bicycle md-icon"></i> Puestos</li>
+            <li className="list-group-item text-white fs-5"><i className="bi bi-person-square md-icon"></i> Mi Perfil</li>
         </ul>
     )
 }

@@ -1,7 +1,7 @@
 import Vehiculo, { StatusVehiculo, TipoVehiculo } from '../../vehiculo/Vehiculo';
-import Usuario, { Roles, StatusUsuario, registrarseUsuario } from '../Usuario';
+import Usuario, { Roles, StatusUsuario } from '../Usuario';
 import './AltaUsuario.css';
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { v4 as uuid } from 'uuid';
 import { useNavigate } from 'react-router-dom';
 
@@ -52,7 +52,7 @@ const AltaUsuario = () => {
         event.preventDefault();
         setSubmitted(true);
         setDatosActualizados(true); // marcar los datos como no actualizados
-        if (datos.tipo == "") {
+        if (datos.tipo === "") {
             let updatedDatos = { ...datos };
             updatedDatos = {
                 ...updatedDatos,
@@ -212,8 +212,8 @@ const AltaUsuario = () => {
             <div className="row">
                 <div className="col-md-4 mb-3">
                     <label htmlFor="tipo" className="fs-4">Tipo</label>
-                    <select class="form-select" name='tipo' onChange={handleChange}>
-                        <option selected value={TipoVehiculo.AUTO}>Auto</option>
+                    <select className="form-select" name='tipo' onChange={handleChange}>
+                        <option value={TipoVehiculo.AUTO}>Auto</option>
                         <option value={TipoVehiculo.CAMIONETA}>Camioneta</option>
                         <option value={TipoVehiculo.MOTO}>Moto</option>
                         <option value={TipoVehiculo.BICICLETA}>Bicicleta</option>

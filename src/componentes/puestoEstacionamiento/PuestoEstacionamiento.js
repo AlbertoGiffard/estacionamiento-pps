@@ -1,28 +1,30 @@
 import React, { Component } from 'react';
-import { useHistory } from 'react-router-dom';
 import { v4 as uuid } from 'uuid';
 import Firebase from '../firebase/Firebase';
 import { useState, useEffect } from "react";
 
-const StatusPuesto = {
+export const StatusPuesto = {
     LIBRE: 'LIBRE',
     OCUPADO: 'OCUPADO',
     INACTIVO: 'INACTIVO'
 };
 
-const PuestoEstacionamiento = (props) => {
-    const [idPuesto, setIdPuesto] = useState(uuid());
-    const [idEstacionamiento, setIdEstacionamiento] = useState(props.estacionamiento.idEstacionamiento);
-    const [vehiculo, setVehiculo] = useState(props.vehiculo);
-    const [status, setStatus] = useState(validarStatus(props.vehiculo));
-    const [tipoVehiculos, setTipoVehiculos] = useState(props.tipoVehiculos);
+class PuestoEstacionamiento extends Component {
+    constructor(props) {
+        super(props);
 
-    useEffect(() => {
-        registrar();
-    }, []);
+        this.state = {
+            idPuesto: uuid(),
+            idEstacionamiento: props.idEstacionamiento,
+            vehiculo: props.vehiculo,
+            status: StatusPuesto.LIBRE,
+            tipoVehiculos: props.tipoVehiculos,
+        };
+    }
+
 
     //valido si fue cargada esta instancia con un vehiculo o vino el dato como nulo
-    const validarStatus = (vehiculo) => {
+    validarStatus = (vehiculo) => {
         if (vehiculo) {
             return StatusPuesto.OCUPADO;
         } else {
@@ -31,38 +33,38 @@ const PuestoEstacionamiento = (props) => {
     };
 
     //Si modifico por libre o inactivo tengo que dejar el atributo vehiculo como vacio
-    const modificarStatus = (status, vehiculo) => {
+    modificarStatus = (status, vehiculo) => {
         let resultado = true;
 
         switch (status) {
             case 'libre':
-                setStatus(StatusPuesto.LIBRE);
-                setVehiculo(null);
+                this.setState({ status: StatusPuesto.LIBRE });
+                this.setState({ vehiculo: null });
                 break;
 
             case 'ocupado':
                 if (vehiculo) {
-                    setStatus(StatusPuesto.OCUPADO);
-                    setVehiculo(vehiculo);
+                    this.setState({ status: StatusPuesto.OCUPADO });
+                    this.setState({ vehiculo: vehiculo });
                 } else {
                     resultado = false;
                 }
                 break;
 
             default:
-                setStatus(StatusPuesto.INACTIVO);
-                setVehiculo(null);
+                this.setState({ status: StatusPuesto.INACTIVO });
+                this.setState({ vehiculo: null });
                 break;
         }
 
         return resultado;
     }
 
-    const registrar = () => {
-        const { idPuesto, idEstacionamiento, vehiculo, status, tipoVehiculos } = state;
+    registrar = () => {
+        const { idPuesto, idEstacionamiento, vehiculo, status, tipoVehiculos } = this.state;
         const firebase = new Firebase();
 
-        firebase.crearEnDBSinUid('puestosEstacionamientos', {
+        return firebase.crearEnDBSinUid('puestosEstacionamientos', {
             idPuesto,
             idEstacionamiento,
             vehiculo,
@@ -82,7 +84,7 @@ const PuestoEstacionamiento = (props) => {
     actualizar = (evento) => {
         evento.preventDefault();
         const firebase = new Firebase();
-        const { idPuesto, idEstacionamiento, vehiculo, status, tipoVehiculos } = state;
+        const { idPuesto, idEstacionamiento, vehiculo, status, tipoVehiculos } = this.state;
 
         firebase.actualizarEnDBSinUid('puestosEstacionamientos', 'idPuesto', idPuesto, {
             vehiculo,
@@ -99,9 +101,8 @@ const PuestoEstacionamiento = (props) => {
             });
     }
 
-    const obtenerPuestos = () => {
+    obtenerPuestos = () => {
         const firebase = new Firebase();
-        const history = useHistory();
 
         firebase.obtenerTodosEnDB('puestosEstacionamientos')
             .then((data) => {
@@ -114,7 +115,6 @@ const PuestoEstacionamiento = (props) => {
                 });
 
                 // Redireccionamos al usuario a otra página después de obtener los puestos
-                history.push('/otra-pagina');
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -124,7 +124,7 @@ const PuestoEstacionamiento = (props) => {
     }
 
     //este nos servirá para traer un puesto en particular, por el idEstacionamiento por ejemplo
-    const obtenerPuestosPorCampo = (filtro) => {
+    obtenerPuestosPorCampo = (filtro) => {
         const firebase = new Firebase();
 
         firebase.obtenerValorEnDB(`puestosEstacionamientos/idEstacionamiento/${filtro}`)
@@ -148,8 +148,6 @@ const PuestoEstacionamiento = (props) => {
                 const errorMessage = error.message;
                 console.error(errorMessage);
             });
-
-        return resultado;
     }
 
 }

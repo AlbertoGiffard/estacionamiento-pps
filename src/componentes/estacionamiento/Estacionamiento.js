@@ -1,70 +1,77 @@
 import React, { Component } from 'react';
 import { v4 as uuid } from 'uuid';
 import Firebase from '../firebase/Firebase';
-import { PuestoEstacionamiento, StatusPuesto } from '../puestoEstacionamiento/PuestoEstacionamiento';
+import PuestoEstacionamiento, { StatusPuesto } from '../puestoEstacionamiento/PuestoEstacionamiento';
 import { Map, GoogleApiWrapper } from 'google-maps-react';
 import { useState, useEffect } from "react";
+import Usuario, { Roles, StatusUsuario } from '../usuario/Usuario';
 
 
-const StatusEstacionamiento = {
+export const StatusEstacionamiento = {
     PENDIENTE: 'PENDIENTE',
     RECHAZADO: 'RECHAZADO',
     INACTIVO: 'INACTIVO',
     ACTIVO: 'ACTIVO'
 };
-function Estacionamiento(props) {
-    const [idEstacionamiento, setIdEstacionamiento] = useState(uuidv4());
-    const [nombre, setNombre] = useState(props.nombre);
-    const [duenio, setDuenio] = useState(props.usuario);
-    const [direccion, setDireccion] = useState(props.direccion);  //array de clave-valor
-    const [disponibilidadMax, setDisponibilidadMax] = useState(props.disponibilidadMax);
-    const [puestosDisponibles, setPuestosDisponibles] = useState(props.puestosDisponibles);
-    const [tiposEstadia, setTiposEstadia] = useState(props.tiposEstadia);
-    const [status, setStatus] = useState(StatusEstacionamiento.PENDIENTE);
 
-    const firebase = new Firebase();
+class Estacionamiento extends Component {
+    constructor(datos) {
+        super(datos);
 
-    //TIPOS DE ESTADIA
-    /* {
-        hora: {
-            monto: Float,
-            descuento: Float
-        },
-        semana: {
-            monto: Float,
-            descuento: Float
-        },
-        mes: {
-            monto: Float,
-            descuento: Float
-        }
-    } */
-
-    useEffect(() => {
-        registrar();
-    }, []);
+        this.state = {
+            idUsuario: uuid(),
+            nombre: datos.nombre,
+            apellido: datos.apellido,
+            dni: datos.dni,
+            email: datos.email,
+            contrasenia: datos.contrasenia,
+            datosTarjeta: null,
+            telefono: datos.telefono,
+            direccion: datos.direccion,
+            rol: datos.rol,
+            foto: null,
+            idEstacionamiento: uuid(),
+            status: StatusEstacionamiento.PENDIENTE,
+            descuentoDia: datos.descuentoDia,
+            descuentoHora: datos.descuentoHora,
+            descuentoMes: datos.descuentoMes,
+            direccionEstacionamiento: datos.direccionEstacionamiento,
+            disponibilidadMax: datos.disponibilidadMax,
+            montoDia: datos.montoDia,
+            montoHora: datos.montoHora,
+            montoMes: datos.montoMes,
+            nombreEstacionamiento: datos.nombreEstacionamiento,
+            tipoDia: datos.tipoDia,
+            tipoHora: datos.tipoHora,
+            tipoMes: datos.tipoMes,
+            puestosDisponibles: []
+        };
+    }
 
     //Suma (y crea) la cantidad de puestos disponibles que se le indique
-    const agregarPuestos = (cantidad, tipoVehiculos) => {
+    agregarPuestos = (cantidad, tipoVehiculos) => {
         const nuevosPuestos = [];
+        const firebase = new Firebase();
 
-        if (cantidad > 0 && cantidad < state.disponibilidadMax) {
+        if (cantidad > 0 && cantidad < this.state.disponibilidadMax) {
             for (let i = 0; i < cantidad; i++) {
-                const puesto = (
-                    <PuestoEstacionamiento
-                        key={i}
-                        estacionamiento={estacionamiento}
-                        tipoVehiculos={tipoVehiculos}
-                    />
-                );
+                const nuevoPuesto = {
+                    idEstacionamiento: this.state.idEstacionamiento,
+                    vehiculo: null,
+                    tipoVehiculos: ["bicicleta", "moto", "auto", "camioneta"]
+                };
+
+                const puesto = new PuestoEstacionamiento(nuevoPuesto);
                 nuevosPuestos.push(puesto);
             }
 
-           setPuestosDisponibles((prevState) => prevState.concat(nuevosPuestos));
+            this.setState((prevState) => ({
+                puestosDisponibles: prevState.puestosDisponibles.concat(nuevosPuestos),
+            }));
 
             // Obtiene los puestos existentes y actualiza su estado
             firebase
-                .obtenerPuestosEstacionamientoPorEstacionamiento(idEstacionamiento)
+                .obtenerPuestosEstacionamientoPorEstacionamiento(this.state.idEstacionamiento)
                 .then((puestosExistentes) => {
                     const puestosActualizados = puestosExistentes.map((puesto) => {
                         return {
@@ -75,7 +82,7 @@ function Estacionamiento(props) {
                     });
 
                     // Actualiza el estado de los puestos de estacionamiento
-                    setState((prevState) => ({
+                    this.setState((prevState) => ({
                         ...prevState,
                         puestosEstacionamiento: puestosActualizados.concat(nuevosPuestos)
                     }));
@@ -83,16 +90,16 @@ function Estacionamiento(props) {
                     // Guarda los puestos actualizados en la base de datos
                     firebase.crearEnDBSinUid('puestosEstacionamientos', puestosActualizados);
                 });
-            actualizar();
+            this.actualizar();
         } else {
             console.log('la cantidad no es un numero positivo o supera la disponibilidad Max');
         }
 
     }
 
-    const restarPuestos = (cantidad) => {
+    restarPuestos = (cantidad) => {
         const firebase = new Firebase();
-        const { idEstacionamiento, puestosDisponibles } = props;
+        const { idEstacionamiento, puestosDisponibles } = this.state;
         // Resta la cantidad de puestos del estacionamiento
         const nuevosPuestosDisponibles = puestosDisponibles - cantidad;
 
@@ -101,7 +108,7 @@ function Estacionamiento(props) {
             return;
         }
 
-        setPuestosDisponibles(nuevosPuestosDisponibles);
+        this.setState({ puestosDisponibles: nuevosPuestosDisponibles });
 
         // Obtiene los puestos del estacionamiento
         firebase.obtenerPuestosEstacionamientoPorEstacionamiento(idEstacionamiento)
@@ -120,60 +127,149 @@ function Estacionamiento(props) {
                 console.error(error);
             });
 
-        actualizar();
+        this.actualizar();
     }
 
-    const modificarStatus = (status) => {
+    modificarStatus = (status) => {
         switch (status) {
             case 'pendiente':
-                setStatus(StatusEstacionamiento.PENDIENTE);
+                this.setState({ status: StatusEstacionamiento.PENDIENTE });
                 break;
 
             case 'rechazado':
-                setStatus(StatusEstacionamiento.RECHAZADO);
+                this.setState({ status: StatusEstacionamiento.RECHAZADO });
                 break;
 
             case 'inactivo':
-                setStatus(StatusEstacionamiento.INACTIVO);
+                this.setState({ status: StatusEstacionamiento.INACTIVO });
                 break;
 
             default:
-                setStatus(StatusEstacionamiento.ACTIVO);
+                this.setState({ status: StatusEstacionamiento.ACTIVO });
                 break;
         }
 
-        actualizar();
+        this.actualizar();
     }
 
-    const registrar = (evento) => {
-        evento.preventDefault();
-
-        const { idEstacionamiento, nombre, duenio, direccion, disponibilidadMax, puestosDisponibles, tiposEstadia, status } = state;
-        const firebase = new Firebase();
-
-        firebase.crearEnDBSinUid('estacionamientos', {
-            idEstacionamiento,
+    registrar = () => {
+        const {
+            idUsuario,
             nombre,
-            duenio,
+            apellido,
+            dni,
+            email,
+            contrasenia,
+            datosTarjeta,
+            telefono,
             direccion,
+            rol,
+            foto,
+            idEstacionamiento,
+            status,
+            descuentoDia,
+            descuentoHora,
+            descuentoMes,
+            direccionEstacionamiento,
             disponibilidadMax,
-            puestosDisponibles,
-            tiposEstadia,
-            status
-        })
-            .then(() => {
-                console.log("ok");
+            montoDia,
+            montoHora,
+            montoMes,
+            nombreEstacionamiento,
+            tipoDia,
+            tipoHora,
+            tipoMes
+
+        } = this.state
+
+        //debe registrar al usuario
+        const nuevoUsuario = {
+            idUsuario,
+            nombre,
+            apellido,
+            dni,
+            email,
+            contrasenia,
+            datosTarjeta: null,
+            telefono,
+            direccion,
+            rol: Roles.DUENIO,
+            foto: null,
+            idEstacionamiento,
+            status: StatusUsuario.ACTIVO
+        }
+        console.log(nuevoUsuario);
+        const usuarioNuevo = new Usuario(nuevoUsuario);
+
+        return usuarioNuevo.registrarse().then(() => {
+            //luego al estacionamiento
+            const nuevoEstacionamiento = {
+                idUsuario,
+                idEstacionamiento,
+                status,
+                descuentoHora,
+                descuentoDia,
+                descuentoMes,
+                montoHora,
+                montoDia,
+                montoMes,
+                tipoHora,
+                tipoDia,
+                tipoMes,
+                nombreEstacionamiento,
+                direccionEstacionamiento,
+                disponibilidadMax
+            }
+            const firebase = new Firebase();
+
+            return firebase.crearEnDBSinUid('estacionamientos', {
+                nuevoEstacionamiento
             })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.error(errorMessage);
-            });
+                .then(() => {
+                    console.log("ok estacionamiento");
+                    //luego los puestos de estacionamiento
+                    let nuevoPuesto;
+                    let puestoComponent;
+                    const cantidad = parseInt(disponibilidadMax);
+                    const promesas = [];
+
+                    for (let i = 0; i < cantidad; i++) {
+                        const nuevoPuesto = {
+                            idEstacionamiento,
+                            vehiculo: null,
+                            tipoVehiculos: ["bicicleta", "moto", "auto", "camioneta"]
+                        };
+                        const puestoComponent = new PuestoEstacionamiento(nuevoPuesto);
+                        const promesa = puestoComponent.registrar()
+                            .catch((error) => {
+                                const errorMessage = error.message;
+                                console.error(errorMessage);
+                            });
+                        promesas.push(promesa);
+                    }
+
+                    return Promise.all(promesas)
+                        .then(() => {
+                            return true;
+                        });
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    console.error(errorMessage);
+                });
+
+
+
+        }).catch((error) => {
+            const errorMessage = error.message;
+            console.error(errorMessage);
+        })
     };
 
-    const actualizar = () => {
+    actualizar = () => {
         const firebase = new Firebase();
-        const { idEstacionamiento, nombre, duenio, direccion, disponibilidadMax, puestosDisponibles, tiposEstadia, status } = state;
+        const { idEstacionamiento, nombre, duenio, direccion, disponibilidadMax, puestosDisponibles, tiposEstadia, status } = this.state;
 
         firebase.actualizarEnDBSinUid('estacionamientos', 'idEstacionamiento', idEstacionamiento, {
             duenio,
@@ -184,15 +280,13 @@ function Estacionamiento(props) {
             status
         })
             .then(() => {
-                setState({ ...state });
+                this.setState({ ...this.state });
             })
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 console.error(errorMessage);
             });
-
-        return resultado;
     }
 
 
@@ -220,7 +314,7 @@ function Estacionamiento(props) {
     }
 
     //este nos servirá para traer un estacionamiento en particular, por el idEstacionamiento por ejemplo
-    const obtenerEstacionamientosPorCampo = (filtro) => {
+    obtenerEstacionamientosPorCampo = (filtro) => {
         const firebase = new Firebase();
 
         return firebase.obtenerValorEnDB(`estacionamientos/${filtro}`)
@@ -249,18 +343,18 @@ function Estacionamiento(props) {
 
     //Me trae todos los estacionamientos cercanos a la direccion pasada por parametro en un radio de 5km
     //hay que ver si funciona, no lo pude probar aun
-    const traerCercanos = (direccion, callback) => {
+    /* traerCercanos = (direccion, callback) => {
         const { google } = props;
         const geocoder = new google.maps.Geocoder();
         const distanceMatrix = new google.maps.DistanceMatrixService();
         const radio = 5 * 1000; // 5km en metros
         const resultados = [];
-    
+
         // Obtiene la latitud y longitud de la direccion
         geocoder.geocode({ address: direccion }, (results, status) => {
             if (status === 'OK') {
                 const { lat, lng } = results[0].geometry.location;
-    
+
                 // Obtiene todos los estacionamientos de la base de datos
                 const firebase = new Firebase();
                 firebase.obtenerDatosDeDB('estacionamientos', (estacionamientos) => {
@@ -268,7 +362,7 @@ function Estacionamiento(props) {
                     const promises = estacionamientos.map((estacionamiento) => {
                         const { direccion: dirEstacionamiento } = estacionamiento;
                         const dir = `${dirEstacionamiento.calle} ${dirEstacionamiento.numero}, ${dirEstacionamiento.ciudad}, ${dirEstacionamiento.provincia}, ${dirEstacionamiento.pais}`;
-    
+
                         return new Promise((resolve, reject) => {
                             // Calcula la distancia entre la dirección y el estacionamiento
                             distanceMatrix.getDistanceMatrix(
@@ -281,7 +375,7 @@ function Estacionamiento(props) {
                                     if (status === 'OK') {
                                         const { distance } = response.rows[0].elements[0];
                                         const distanciaEnMetros = distance.value;
-    
+
                                         // Si el estacionamiento está dentro del radio de 5km, lo agrega al array de resultados
                                         if (distanciaEnMetros <= radio) {
                                             resultados.push(estacionamiento);
@@ -295,7 +389,7 @@ function Estacionamiento(props) {
                             );
                         });
                     });
-    
+
                     Promise.all(promises)
                         .then(() => {
                             callback(resultados);
@@ -310,12 +404,12 @@ function Estacionamiento(props) {
                 callback([]);
             }
         });
-    };
-    
+    }; */
+
 
     //Aunque solo se actualice el descuento, por ejemplo, de igual forma hay que pasar el dato del monto, igual al contrario
-    const modificarTarifa = (tipo, monto, descuento) => {
-        const { hora, semana, mes } = state.tiposEstadia;
+    modificarTarifa = (tipo, monto, descuento) => {
+        const { hora, semana, mes } = this.state.tiposEstadia;
 
         switch (tipo) {
             case 'hora':
@@ -334,7 +428,9 @@ function Estacionamiento(props) {
                 break;
         }
 
-        actualizar();
+        this.actualizar();
     }
 
 }
+
+export default Estacionamiento;

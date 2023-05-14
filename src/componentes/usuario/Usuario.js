@@ -40,10 +40,6 @@ class Usuario extends Component {
       };
     }
 
-    /* useEffect(() => {
-        registrarse();
-    }, []); */
-
     //dependiendo de coomo venga este atributo lo definira con alguno de los roles previamente cargado
     verificarRol = (rol) => {
         let resultado = Roles.CLIENTE;

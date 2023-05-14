@@ -34,7 +34,7 @@ function App() {
           <Route path="/" element={<Inicio />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registrarse" element={<Registrarse />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/*" element={<Dashboard />} />
           <Route path="/dashboard/nuevaReserva" element={<NuevaReserva />} />
         </Routes>
       </div>

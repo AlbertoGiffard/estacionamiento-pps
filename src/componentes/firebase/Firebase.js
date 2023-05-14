@@ -24,7 +24,9 @@ class Firebase extends React.Component {
     super(props);
     this.state = {
       user: null,
-      loading: true
+      loading: true,
+      auth: auth,
+      firestore: firestore
     };
   }
 
@@ -44,7 +46,7 @@ class Firebase extends React.Component {
   };
   //verifica si existe el mail o no
   verificarMail = (email) => {
-    return auth.fetchSignInMethodsForEmail(email)
+    /* return auth.fetchSignInMethodsForEmail(email)
       .then((signInMethods) => {
         if (signInMethods && signInMethods.length > 0) {
           // El correo electrónico ya está en uso
@@ -58,7 +60,7 @@ class Firebase extends React.Component {
         console.error(error);
         // Error al validar el correo electrónico
         return false;
-      });
+      }); */
   }
 
   registrarse = (email, contrasenia) => {
@@ -147,15 +149,16 @@ class Firebase extends React.Component {
       });
   };
 
-  obtenerValorPorUnCampoEspecifico = (tabla, condiciones) => {
+  obtenerValorPorUnCampoEspecifico = (tabla, campo, valor) => {
     let query = firestore.collection(tabla);
   
     // Agregar las condiciones de búsqueda a la query
-    for (let campo in condiciones) {
+    /* for (let campo in condiciones) {
+      console.log(campo);
       if (condiciones[campo] !== null && condiciones[campo] !== undefined) {
-        query = query.where(campo, "==", condiciones[campo]);
       }
-    }
+    } */
+    query = query.where(campo, "==", valor);
   
     // Ejecutar la query y devolver los resultados
     return query.get()
@@ -226,18 +229,17 @@ class Firebase extends React.Component {
       .then((snapshot) => snapshot.numChildren());
   }; */
 
-  /* const obtenerPuestosEstacionamientoPorEstacionamiento = (idEstacionamiento) => {
-    return database
-      .ref('puestosEstacionamientos')
-      .orderByChild('idEstacionamiento')
-      .equalTo(idEstacionamiento)
-      .once('value')
-      .then((snapshot) => {
+  obtenerPuestosEstacionamientoPorEstacionamiento = (idEstacionamiento) => {
+    return firestore
+      .collection('puestosEstacionamientos')
+      .where('idEstacionamiento', '==', idEstacionamiento)
+      .get()
+      .then((querySnapshot) => {
         const puestos = [];
-        snapshot.forEach((childSnapshot) => {
+        querySnapshot.forEach((doc) => {
           const puesto = {
-            id: childSnapshot.key,
-            ...childSnapshot.val()
+            id: doc.id,
+            ...doc.data()
           };
           puestos.push(puesto);
         });
@@ -247,7 +249,8 @@ class Firebase extends React.Component {
         console.error('Error al obtener puestos de estacionamiento:', error);
         return null;
       });
-  } */
+  };
+  
 }
 
 export default Firebase;

@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
 import './Login.css';
 import React, { Fragment, useState } from 'react';
+import Firebase from '../../firebase/Firebase';
 
 const Login = () => {
     const [datos, setDatos] = useState({
@@ -8,6 +9,8 @@ const Login = () => {
         contrasenia: "",
         validarContrasenia: ""
     });
+
+    const navigate = useNavigate();
 
     const handleChange = (event) => {
         setDatos({
@@ -18,7 +21,15 @@ const Login = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        console.log(datos);
+        const firebase = new Firebase();
+        firebase.iniciarSesion(datos.email, datos.contrasenia).then(() => {
+            console.log("todo un exito");
+            navigate('/dashboard/', { state: { email: datos.email } });
+        })
+        .catch((error) => {
+            console.error("error inicio sesion " + error);
+            alert("error inicio sesion " + error);
+        })
     };
 
     return (
@@ -33,26 +44,23 @@ const Login = () => {
                         <form className="needs-validation align-self-center my-auto h-100" onSubmit={handleSubmit} noValidate>
                             <div className="mb-3">
                                 <label htmlFor="email" className="fs-4">Email</label>
-                                <input type="email" className="form-control" id="email" name="email" placeholder="correo@mail.com" value={datos.email} required />
+                                <input type="email" className="form-control" id="email" name="email" placeholder="correo@mail.com" value={datos.email} required onChange={handleChange} />
                                 <div className="invalid-feedback">
                                     Por favor ingrese un email válido.
                                 </div>
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="contrasenia" className="fs-4">Contraseña</label>
-                                <input type="password" className="form-control" id="contrasenia" name="contrasenia" value={datos.contrasenia} required />
+                                <input type="password" className="form-control" id="contrasenia" name="contrasenia" value={datos.contrasenia} onChange={handleChange} required />
                             </div>
                             <div className="text-center">
-                                {/* test */}
-                                <Link to="/dashboard" className="nav-link active">
-                                    <button className="btn btn-ok btn-lg w-50 mb-1" type="submit">
-                                        Ingresar
-                                    </button>
-                                </Link>
+                                <button className="btn btn-ok btn-lg w-50 mb-1" type="submit">
+                                    Ingresar
+                                </button>
                                 <div className="container-registrarse d-flex align-items-center justify-content-start">
                                     <span className=''>Eres nuevo?</span>
                                     <Link to="/registrarse" className="nav-link active">
-                                        <a className='text-primary ml-3'>Registrarse</a>
+                                        <span className='text-primary ml-3'>Registrarse</span>
                                     </Link>
                                 </div>
                             </div>
