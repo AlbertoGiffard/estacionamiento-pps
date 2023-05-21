@@ -4,7 +4,6 @@ import React from 'react';
 
 const Cards = (props) => {
     const { titulo, mensaje, link, user } = props;
-    console.log("cards", user);
     return (
         <div className="card size-card blur-bg">
             <div className="card-body d-flex flex-column">

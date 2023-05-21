@@ -11,7 +11,7 @@ const Header = () => {
     useEffect(() => {
         const unsubscribe = firebase.state.auth.onAuthStateChanged((user) => {
             setUser(user);
-            console.log(user);
+            console.log('header',user);
         });
 
         // Clean up the listener when the component unmounts

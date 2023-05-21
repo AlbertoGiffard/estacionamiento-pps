@@ -13,7 +13,7 @@ const Dashboard = () => {
 
     useEffect(() => {
         const userLocalStorage = JSON.parse(localStorage.getItem("userData"));
-
+        console.log(userLocalStorage);
         if (userLocalStorage) {
             setUserData(userLocalStorage);
         } else {
@@ -28,8 +28,6 @@ const Dashboard = () => {
                     console.log('Error al obtener los datos del usuario:', error);
                 });
         }
-
-        console.log("dashboard", localStorage.getItem("userData"));
     }, []); // arreglo vacío de dependencias para ejecutar el useEffect solo una vez
 
 

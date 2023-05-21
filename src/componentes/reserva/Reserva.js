@@ -32,7 +32,7 @@ class Reserva extends Component {
             estacionamiento: props.estacionamiento,
             usuario: props.usuario,
             vehiculo: props.vehiculo,
-            tipo: props.tipoReserva,
+            tipo: props.tipo,
             fechaLlegada: props.fechaLlegada,
             fechaSalida: props.fechaSalida,
             status: StatusReserva.POR_CONFIRMAR,
@@ -40,8 +40,6 @@ class Reserva extends Component {
             descuento: props.descuento,
             total: props.total
         };
-
-        this.registrar();
     }
 
 
@@ -65,12 +63,12 @@ class Reserva extends Component {
         return resultado;
     }
 
-    registrar = (evento) => {
+    registrar = () => {
         const { idReserva, estacionamiento, usuario, vehiculo, tipo, fechaLlegada, fechaSalida, status, statusPago, descuento, total } = this.state;
         const firebase = new Firebase();
         let resultado = false;
 
-        firebase.crearEnDBSinUid('reservas', {
+        return firebase.crearEnDBSinUid('reservas', {
             idReserva,
             estacionamiento,
             usuario,
