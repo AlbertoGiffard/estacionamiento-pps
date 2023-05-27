@@ -35,6 +35,7 @@ class Reserva extends Component {
             tipo: props.tipo,
             fechaLlegada: props.fechaLlegada,
             fechaSalida: props.fechaSalida,
+            horaCreacion: Date.now(),
             status: StatusReserva.POR_CONFIRMAR,
             statusPago: StatusPago.POR_PAGAR,
             descuento: props.descuento,

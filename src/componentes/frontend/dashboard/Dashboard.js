@@ -5,6 +5,7 @@ import MenuReserva from '../moduloReserva/menuReserva/MenuReserva';
 import NuevaReserva from '../moduloReserva/nuevaReserva/NuevaReserva';
 import MenuLateral from '../../utilitarios/menuLateral/MenuLateral';
 import Firebase from '../../firebase/Firebase';
+import GestionReserva from '../moduloReserva/gestionReserva/GestionReserva';
 
 const Dashboard = () => {
     const location = useLocation();
@@ -40,6 +41,7 @@ const Dashboard = () => {
                 <Routes path="/dashboard/*">
                     <Route path="/" element={<MenuReserva user={userData} />} />
                     <Route path="/nuevaReserva" element={<NuevaReserva user={userData} />} />
+                    <Route path="/gestionReserva" element={<GestionReserva user={userData} />} />
                 </Routes>
             </div>
         </div>
