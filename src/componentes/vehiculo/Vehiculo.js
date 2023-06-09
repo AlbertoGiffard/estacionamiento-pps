@@ -19,6 +19,7 @@ class Vehiculo extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            id: props.id,
             idVehiculo: props.idVehiculo,
             usuario: props.usuario,
             marca: props.marca,
@@ -119,7 +120,7 @@ class Vehiculo extends Component {
         return this.actualizar();
     }
 
-    registrar = (evento) => {
+    registrar = () => {
         const firebase = new Firebase();  
         
         return firebase.crearEnDBSinUid("vehiculos", this.state)
@@ -134,19 +135,16 @@ class Vehiculo extends Component {
             });
     };
 
-    actualizar = (evento) => {
-        evento.preventDefault();
+    actualizar = () => {
         const firebase = new Firebase();
         const {
+            id,
             idVehiculo,
             totalReservas,
             status
         } = this.state;
 
-        firebase.actualizarEnDBSinUid('vehiculos', 'idVehiculo', idVehiculo, {
-            totalReservas,
-            status
-        })
+        return firebase.actualizarEnDB(id, 'vehiculos', this.state)
             .then(() => {
                 return true;
             })

@@ -6,6 +6,9 @@ import NuevaReserva from '../moduloReserva/nuevaReserva/NuevaReserva';
 import MenuLateral from '../../utilitarios/menuLateral/MenuLateral';
 import Firebase from '../../firebase/Firebase';
 import GestionReserva from '../moduloReserva/gestionReserva/GestionReserva';
+import MenuVehiculo from '../moduloVehiculo/menuVehiculo/MenuVehiculo';
+import NuevoVehiculo from '../moduloVehiculo/nuevoVehiculo/NuevoVehiculo';
+import GestionVehiculo from '../moduloVehiculo/gestionVehiculo/GestionVehiculo';
 
 const Dashboard = () => {
     const location = useLocation();
@@ -40,6 +43,9 @@ const Dashboard = () => {
             <div className="container col-md-9">
                 <Routes path="/dashboard/*">
                     <Route path="/" element={<MenuReserva user={userData} />} />
+                    <Route path="/vehiculos" element={<MenuVehiculo user={userData} />} />
+                    <Route path="/vehiculos/nuevoVehiculo" element={<NuevoVehiculo user={userData} />} />
+                    <Route path="/vehiculos/gestionVehiculo" element={<GestionVehiculo user={userData} />} />
                     <Route path="/nuevaReserva" element={<NuevaReserva user={userData} />} />
                     <Route path="/gestionReserva" element={<GestionReserva user={userData} />} />
                 </Routes>
