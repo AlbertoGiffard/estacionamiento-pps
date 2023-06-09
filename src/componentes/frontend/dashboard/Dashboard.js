@@ -9,6 +9,9 @@ import GestionReserva from '../moduloReserva/gestionReserva/GestionReserva';
 import MenuVehiculo from '../moduloVehiculo/menuVehiculo/MenuVehiculo';
 import NuevoVehiculo from '../moduloVehiculo/nuevoVehiculo/NuevoVehiculo';
 import GestionVehiculo from '../moduloVehiculo/gestionVehiculo/GestionVehiculo';
+import MenuEstacionamiento from '../moduloEstacionamiento/menuEstacionamiento/MenuEstacionamiento';
+import NuevoEstacionamiento from '../moduloEstacionamiento/nuevoEstacionamiento/NuevoEstacionamiento';
+import GestionEstacionamiento from '../moduloEstacionamiento/gestionEstacionamiento/GestionEstacionamiento';
 
 const Dashboard = () => {
     const location = useLocation();
@@ -46,6 +49,9 @@ const Dashboard = () => {
                     <Route path="/vehiculos" element={<MenuVehiculo user={userData} />} />
                     <Route path="/vehiculos/nuevoVehiculo" element={<NuevoVehiculo user={userData} />} />
                     <Route path="/vehiculos/gestionVehiculo" element={<GestionVehiculo user={userData} />} />
+                    <Route path="/estacionamientos" element={<MenuEstacionamiento user={userData} />} />
+                    <Route path="/estacionamientos/nuevoEstacionamiento" element={<NuevoEstacionamiento user={userData} />} />
+                    <Route path="/estacionamientos/gestionEstacionamiento" element={<GestionEstacionamiento user={userData} />} />
                     <Route path="/nuevaReserva" element={<NuevaReserva user={userData} />} />
                     <Route path="/gestionReserva" element={<GestionReserva user={userData} />} />
                 </Routes>

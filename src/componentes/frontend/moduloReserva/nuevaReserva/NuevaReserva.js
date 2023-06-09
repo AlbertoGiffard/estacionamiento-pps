@@ -41,13 +41,13 @@ const NuevaReserva = () => {
     useEffect(() => {
         const firebase = new Firebase();
         firebase.obtenerValorPorUnCampoEspecifico('vehiculos', 'usuario.email', userLocalStorage.email)
-            .then((nuevosVehiculos) => {
+            .then((dataVehiculos) => {
                 //setVehiculos((datos) => ({ ...datos, vehiculos: vehiculos }));
-                setVehiculos((datos) => [...datos, nuevosVehiculos]);
-                if (nuevosVehiculos[0] === undefined) {
-                    setVehiculoSeleccionado(nuevosVehiculos);
+                setVehiculos(dataVehiculos);
+                if (dataVehiculos[0] === undefined) {
+                    setVehiculoSeleccionado(dataVehiculos);
                 } else {
-                    setVehiculoSeleccionado(nuevosVehiculos[0]);
+                    setVehiculoSeleccionado(dataVehiculos[0]);
                 }
             })
             .catch((error) => {
@@ -56,10 +56,8 @@ const NuevaReserva = () => {
 
         firebase.obtenerValorEnDB('estacionamientos')
             .then((estacionamientos) => {
-                estacionamientos.map((estacionamiento) => {
-                    setEstacionamientos((datos) => [...datos, estacionamiento.nuevoEstacionamiento]);
-                })
-                setEstacionamientoSeleccionado(estacionamientos[0].nuevoEstacionamiento);
+                setEstacionamientos(estacionamientos);
+                setEstacionamientoSeleccionado(estacionamientos[0]);
             })
             .catch((error) => {
                 console.error(error);

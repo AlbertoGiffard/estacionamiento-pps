@@ -64,13 +64,7 @@ class PuestoEstacionamiento extends Component {
         const { idPuesto, idEstacionamiento, vehiculo, status, tipoVehiculos } = this.state;
         const firebase = new Firebase();
 
-        return firebase.crearEnDBSinUid('puestosEstacionamientos', {
-            idPuesto,
-            idEstacionamiento,
-            vehiculo,
-            status,
-            tipoVehiculos
-        })
+        return firebase.crearEnDB(idPuesto, 'puestosEstacionamientos', this.state)
             .then(() => {
                 return true;
             })

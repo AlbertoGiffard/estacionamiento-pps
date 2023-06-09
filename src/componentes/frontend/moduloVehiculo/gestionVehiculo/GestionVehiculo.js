@@ -16,7 +16,17 @@ const GestionVehiculo = () => {
             .then((vehiculosDb) => {
                 if (vehiculosDb !== null) {
                     console.log(vehiculosDb);
-                    setVehiculos(vehiculosDb);
+                    if (vehiculosDb[0] !== undefined) {
+                        setVehiculos(vehiculosDb);
+                    } else {
+                        setVehiculos((datos) => {
+                            if (Array.isArray(datos)) {
+                                return [...datos, vehiculosDb];
+                            } else {
+                                return [vehiculosDb];
+                            }
+                        });
+                    }
                 }
             })
             .catch((error) => {

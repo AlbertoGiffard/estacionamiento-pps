@@ -189,6 +189,20 @@ class Firebase extends React.Component {
     return firestore.collection(tabla).doc(id).update(data);
   };
 
+  buscarDocumentoPorCampo = (coleccion, campo, valor) => {
+    return firestore
+      .collection(coleccion)
+      .where(campo, '==', valor)
+      .get()
+      .then((querySnapshot) => {
+        const documentos = [];
+        querySnapshot.forEach((doc) => {
+          documentos.push({ id: doc.id, ...doc.data() });
+        });
+        return documentos;
+      });
+  };
+
   /* const actualizarEnDBSinUid = (tabla, campo, valor, data) => {
     // Realiza una consulta para buscar el documento que deseas actualizar
     return database.ref(tabla)
@@ -231,11 +245,11 @@ class Firebase extends React.Component {
 
   obtenerPuestosEstacionamientoPorEstacionamiento = (idEstacionamiento) => {
     return firestore
-      .collection('puestosEstacionamientos')
-      .where('idEstacionamiento', '==', idEstacionamiento)
-      .get()
-      .then((querySnapshot) => {
-        const puestos = [];
+    .collection('puestosEstacionamientos')
+    .where('idEstacionamiento', '==', idEstacionamiento)
+    .get()
+    .then((querySnapshot) => {
+      const puestos = [];
         querySnapshot.forEach((doc) => {
           const puesto = {
             id: doc.id,
@@ -248,6 +262,20 @@ class Firebase extends React.Component {
       .catch((error) => {
         console.error('Error al obtener puestos de estacionamiento:', error);
         return null;
+      });
+  };
+
+  borrarDocumento = (coleccion, idDocumento) => {
+    const documentoRef = firestore.collection(coleccion).doc(idDocumento);
+  
+    return documentoRef.delete()
+      .then(() => {
+        console.log('Documento eliminado con éxito');
+        return true;
+      })
+      .catch((error) => {
+        console.error('Error al eliminar documento:', error);
+        throw error;
       });
   };
   

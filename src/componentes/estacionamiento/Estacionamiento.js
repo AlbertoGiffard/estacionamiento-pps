@@ -19,7 +19,7 @@ class Estacionamiento extends Component {
         super(datos);
 
         this.state = {
-            idUsuario: uuid(),
+            idUsuario: datos.idUsuario || uuid(),
             nombre: datos.nombre,
             apellido: datos.apellido,
             dni: datos.dni,
@@ -31,7 +31,7 @@ class Estacionamiento extends Component {
             rol: datos.rol,
             foto: null,
             idEstacionamiento: uuid(),
-            status: StatusEstacionamiento.PENDIENTE,
+            status: StatusEstacionamiento.ACTIVO,
             descuentoDia: datos.descuentoDia,
             descuentoHora: datos.descuentoHora,
             descuentoMes: datos.descuentoMes,
@@ -49,85 +49,67 @@ class Estacionamiento extends Component {
     }
 
     //Suma (y crea) la cantidad de puestos disponibles que se le indique
-    agregarPuestos = (cantidad, tipoVehiculos) => {
+    static agregarPuestos = (idEstacionamiento, cantidad) => {
         const nuevosPuestos = [];
         const firebase = new Firebase();
+        const promesas = [];
 
-        if (cantidad > 0 && cantidad < this.state.disponibilidadMax) {
-            for (let i = 0; i < cantidad; i++) {
-                const nuevoPuesto = {
-                    idEstacionamiento: this.state.idEstacionamiento,
-                    vehiculo: null,
-                    tipoVehiculos: ["bicicleta", "moto", "auto", "camioneta"]
-                };
-
-                const puesto = new PuestoEstacionamiento(nuevoPuesto);
-                nuevosPuestos.push(puesto);
-            }
-
-            this.setState((prevState) => ({
-                puestosDisponibles: prevState.puestosDisponibles.concat(nuevosPuestos),
-            }));
-
-            // Obtiene los puestos existentes y actualiza su estado
-            firebase
-                .obtenerPuestosEstacionamientoPorEstacionamiento(this.state.idEstacionamiento)
-                .then((puestosExistentes) => {
-                    const puestosActualizados = puestosExistentes.map((puesto) => {
-                        return {
-                            ...puesto,
-                            status: StatusPuesto.LIBRE,
-                            vehiculo: null
-                        };
-                    });
-
-                    // Actualiza el estado de los puestos de estacionamiento
-                    this.setState((prevState) => ({
-                        ...prevState,
-                        puestosEstacionamiento: puestosActualizados.concat(nuevosPuestos)
-                    }));
-
-                    // Guarda los puestos actualizados en la base de datos
-                    firebase.crearEnDBSinUid('puestosEstacionamientos', puestosActualizados);
+        for (let i = 0; i < cantidad; i++) {
+            const nuevoPuesto = {
+                idEstacionamiento: idEstacionamiento,
+                vehiculo: null,
+                tipoVehiculos: ["bicicleta", "moto", "auto", "camioneta"]
+            };
+            const puestoComponent = new PuestoEstacionamiento(nuevoPuesto);
+            const promesa = puestoComponent.registrar()
+                .catch((error) => {
+                    const errorMessage = error.message;
+                    console.error(errorMessage);
                 });
-            this.actualizar();
-        } else {
-            console.log('la cantidad no es un numero positivo o supera la disponibilidad Max');
+            promesas.push(promesa);
         }
 
+        return Promise.all(promesas)
+            .then(() => {
+                return true;
+            });
     }
 
-    restarPuestos = (cantidad) => {
+    static restarPuestos = (idEstacionamiento, cantidad) => {
         const firebase = new Firebase();
-        const { idEstacionamiento, puestosDisponibles } = this.state;
-        // Resta la cantidad de puestos del estacionamiento
-        const nuevosPuestosDisponibles = puestosDisponibles - cantidad;
+        const promesas = [];
 
-        if (cantidad > puestosDisponibles) {
-            console.error('No hay suficientes puestos de estacionamiento para restar.');
-            return;
-        }
-
-        this.setState({ puestosDisponibles: nuevosPuestosDisponibles });
-
-        // Obtiene los puestos del estacionamiento
-        firebase.obtenerPuestosEstacionamientoPorEstacionamiento(idEstacionamiento)
+        return firebase.obtenerPuestosEstacionamientoPorEstacionamiento(idEstacionamiento)
             .then((puestos) => {
-                // Filtra los puestos que están libres y los marca como inactivos
-                const puestosLibres = puestos.filter((puesto) => puesto.status === StatusPuesto.LIBRE);
-                const updates = {};
-                puestosLibres.forEach((puesto) => {
-                    updates[`puestosEstacionamientos/${puesto.idPuesto}/status`] = StatusPuesto.INACTIVO;
-                });
+                const puestosParaBorrar = [];
 
-                // Actualiza los puestos en Firebase
-                return firebase.database.ref().update(updates);
+                puestos.forEach((puesto) => {
+                    if (puesto.status === StatusPuesto.LIBRE) {
+                        puestosParaBorrar.push(puesto);
+                    }
+                })
+
+                if (puestosParaBorrar.length >= cantidad) {
+                    const promesas = [];
+                    //borrar esos puestos
+                    for (let i = 0; i < cantidad; i++) {
+                        const puesto = puestosParaBorrar[i];
+                        const promesa = firebase.borrarDocumento('puestosEstacionamientos', puesto.idPuesto)
+                            .catch((error) => {
+                                // Ocurrió un error al eliminar el documento
+                                console.error('Error al eliminar un puesto', error);
+                                return Promise.reject(new Error('Error al eliminar un puesto'));
+                            });
+                        promesas.push(promesa);
+                    }
+                    return Promise.all(promesas)
+                        .then(() => {
+                            return true;
+                        });
+                } else {
+                    return Promise.reject(new Error('no hay suficientes puestos para borrar'));
+                }
             })
-            .catch((error) => {
-                console.error(error);
-            });
-
-        this.actualizar();
     }
 
     modificarStatus = (status) => {
@@ -222,14 +204,10 @@ class Estacionamiento extends Component {
             }
             const firebase = new Firebase();
 
-            return firebase.crearEnDBSinUid('estacionamientos', {
-                nuevoEstacionamiento
-            })
+            return firebase.crearEnDBSinUid('estacionamientos', nuevoEstacionamiento)
                 .then(() => {
                     console.log("ok estacionamiento");
                     //luego los puestos de estacionamiento
-                    let nuevoPuesto;
-                    let puestoComponent;
                     const cantidad = parseInt(disponibilidadMax);
                     const promesas = [];
 
@@ -269,24 +247,87 @@ class Estacionamiento extends Component {
 
     actualizar = () => {
         const firebase = new Firebase();
-        const { idEstacionamiento, nombre, duenio, direccion, disponibilidadMax, puestosDisponibles, tiposEstadia, status } = this.state;
+        const { idEstacionamiento } = this.state;
 
-        firebase.actualizarEnDBSinUid('estacionamientos', 'idEstacionamiento', idEstacionamiento, {
-            duenio,
-            direccion,
-            disponibilidadMax,
-            puestosDisponibles,
-            tiposEstadia,
-            status
-        })
+        firebase.actualizarEnDB(idEstacionamiento, 'estacionamientos', this.state)
             .then(() => {
-                this.setState({ ...this.state });
+                return true;
             })
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 console.error(errorMessage);
             });
+    }
+
+    static nuevaCapacidad = (valorOriginal, valorNuevo, idEstacionamiento) => {
+        const nuevoValorCapacidad = valorOriginal - valorNuevo;
+
+        if (valorNuevo < 0) {
+            alert('El nuevo valor de capacidad es negativo');
+            return Promise.reject(new Error('El nuevo valor de capacidad es negativo'));
+        } else {
+
+            //aumento
+            if (nuevoValorCapacidad < 0) {
+                const cantidad = nuevoValorCapacidad * (-1);
+                return this.agregarPuestos(idEstacionamiento, cantidad)
+                    .then(() => {
+                        return true;
+                    })
+                    .catch((error) => {
+                        console.log('aumento', error);
+                        throw error;
+                    })
+            } else if (nuevoValorCapacidad > 0) {
+                //disminuyo
+                return this.restarPuestos(idEstacionamiento, nuevoValorCapacidad);
+            } else {
+                //igual
+                return Promise.resolve(true);
+            }
+        }
+    }
+
+    static puedeEstarInactivo = (idEstacionamiento) => {
+        const firebase = new Firebase();
+
+        return firebase.obtenerPuestosEstacionamientoPorEstacionamiento(idEstacionamiento)
+            .then((puestos) => {
+                for (let i = 0; i < puestos.length; i++) {
+                    const puesto = puestos[i];
+                    if (puesto.status === StatusPuesto.OCUPADO) {
+                        throw new Error('Hay puestos aún ocupados');
+                    }
+                }
+                return Promise.resolve(true); // Resolver la promesa si no hay puestos ocupados
+            });
+    }
+
+    static actualizar = (estacionamiento) => {
+        const firebase = new Firebase();
+        const { idEstacionamiento } = estacionamiento;
+
+        return firebase.buscarDocumentoPorCampo('estacionamientos', 'idEstacionamiento', idEstacionamiento)
+            .then((documentos) => {
+                if (documentos.length > 0) {
+                    // Actualizar el primer documento encontrado con los nuevos datos
+                    const primerDocumento = documentos[0];
+                    return Estacionamiento.nuevaCapacidad(parseInt(primerDocumento.disponibilidadMax), parseInt(estacionamiento.disponibilidadMax), idEstacionamiento)
+                        .then((result) => {
+                            console.log('result', result); // Manejar el resultado aquí
+                            return Estacionamiento.puedeEstarInactivo(idEstacionamiento)
+                                .then(() => {
+                                    return firebase.actualizarEnDB(primerDocumento.id, 'estacionamientos', estacionamiento);                                
+                                })
+                        })
+                } else {
+                    return Promise.reject(new Error(`No se encontró ningún documento con el campo idEstacionamiento: ${idEstacionamiento}`));
+                }
+            })
+            .catch((error) => {
+                throw error;
+            })
     }
 
 
