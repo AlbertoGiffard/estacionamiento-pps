@@ -19,7 +19,9 @@ const MenuLateral = (props) => {
             <Link to="/dashboard/estacionamientos">
                 <li className="list-group-item text-white fs-6"><i className="bi bi-p-square md-icon"></i> Estacionamientos</li>
             </Link>
-            <li className="list-group-item text-white fs-5"><i className="bi bi-bicycle md-icon"></i> Puestos</li>
+            <Link to="/dashboard/puestos">
+                <li className="list-group-item text-white fs-5"><i className="bi bi-bicycle md-icon"></i> Puestos</li>
+            </Link>
             <li className="list-group-item text-white fs-5"><i className="bi bi-person-square md-icon"></i> Mi Perfil</li>
         </ul>
     )

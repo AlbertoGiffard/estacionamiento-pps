@@ -234,14 +234,13 @@ class Firebase extends React.Component {
     return firestore.collection(tabla).doc(id).delete();
   };
 
-  /* const obtenerCantidadFilas = (tabla, campo, valor) => {
-    return database
-      .ref(tabla)
-      .orderByChild(campo)
-      .equalTo(valor)
-      .once('value')
-      .then((snapshot) => snapshot.numChildren());
-  }; */
+  obtenerCantidadFilas = (coleccion, campo, valor) => {
+    return firebase.firestore()
+    .collection(coleccion)
+    .where(campo, '==', valor)
+    .get()
+    .then((querySnapshot) => querySnapshot.size);
+  };
 
   obtenerPuestosEstacionamientoPorEstacionamiento = (idEstacionamiento) => {
     return firestore
