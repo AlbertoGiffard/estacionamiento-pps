@@ -75,16 +75,11 @@ class PuestoEstacionamiento extends Component {
             });
     };
 
-    actualizar = (evento) => {
-        evento.preventDefault();
+    static actualizar = (puesto) => {
         const firebase = new Firebase();
-        const { idPuesto, idEstacionamiento, vehiculo, status, tipoVehiculos } = this.state;
+        const { idPuesto } = puesto;
 
-        firebase.actualizarEnDBSinUid('puestosEstacionamientos', 'idPuesto', idPuesto, {
-            vehiculo,
-            status,
-            tipoVehiculos
-        })
+        return firebase.actualizarEnDB(idPuesto, 'puestosEstacionamientos', puesto)
             .then(() => {
                 return true;
             })

@@ -72,9 +72,8 @@ const GestionVehiculo = () => {
 
         if (count < 3) {
             copyVehiculo.status = StatusVehiculo.ACTIVO;
-            const vehiculoComponent = new Vehiculo(copyVehiculo);
 
-            vehiculoComponent.actualizar()
+            Vehiculo.actualizar(copyVehiculo)
                 .then(() => {
                     actualizarLista(vehiculo);
                 })
@@ -89,9 +88,8 @@ const GestionVehiculo = () => {
     const inactive = (vehiculo) => {
         let copyVehiculo = vehiculo;
         copyVehiculo.status = StatusVehiculo.INACTIVO;
-        const vehiculoComponent = new Vehiculo(copyVehiculo);
 
-        vehiculoComponent.actualizar()
+        Vehiculo.actualizar(copyVehiculo)
             .then(() => {
                 actualizarLista(vehiculo);
             })

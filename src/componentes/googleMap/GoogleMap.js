@@ -1,25 +1,68 @@
-import React, { Component } from 'react';
-import { Map, GoogleApiWrapper } from 'google-maps-react';
+import { GoogleMapsProvider } from '@ubilabs/google-maps-react-hooks';
+import React, { useCallback, useEffect, useState } from 'react';
+import './GoogleMap.css';
+import { MarkerClusterer } from '@googlemaps/markerclusterer';
 
-class GoogleMap extends Component {
-  render() {
-    const mapStyles = {
-      width: '100%',
-      height: '100%',
-      borderRadius: '5px'
-    };
+const GoogleMap = ({ puntos }) => {
+  const [mapContainer, setMapContainer] = useState(null);
+  const [puntosState, setPuntosState] = useState([]);
+  const onLoad = useCallback((map) => addMarkers(map), []);
 
-    return (
-      <Map
-        google={this.props.google}
-        zoom={14}
-        style={mapStyles}
-        initialCenter={{ lat: -34.6037, lng: -58.3816 }}
-      />
-    );
+  const mapOptions = {
+    zoom: 14,
+    center: {
+      lat: -34.6037,
+      lng: -58.3816,
+    }
   }
-}
 
-export default GoogleApiWrapper({
-  apiKey: 'AIzaSyC-nBlHCf6Ul8vQf5vWJJMglKkKew7S82Y'
-})(GoogleMap);
+  useEffect(() => {
+    if (puntos && puntos.length > 0) {
+      setPuntosState(puntos);
+    }
+    console.log('2', puntos);
+  }, []);
+
+  const addMarkers = (map) => {
+    const infoWindow = new window.google.maps.InfoWindow();
+  
+    const markers = puntosState.map(([lat, lng]) => {
+      const marker = new window.google.maps.Marker({ position: { lat, lng } });
+  
+      marker.addListener("click", () => {
+        infoWindow.setPosition({ lat, lng });
+        infoWindow.setContent(`
+          <div class="info-window">
+            <h2>Estacionamiento</h2>
+          </div>
+        `);
+        infoWindow.open({ map });
+      });
+  
+      return marker;
+    });
+  
+    new MarkerClusterer({
+      markers,
+      map
+    });
+  }
+
+
+  return (
+    <GoogleMapsProvider
+      googleMapsAPIKey='AIzaSyC-nBlHCf6Ul8vQf5vWJJMglKkKew7S82Y'
+      mapOptions={mapOptions}
+      mapContainer={mapContainer}
+      onLoadMap={onLoad}
+    >
+      <div
+        ref={(node) => setMapContainer(node)}
+        className='h-view'
+      />
+    </GoogleMapsProvider>
+  );
+};
+
+export default GoogleMap;
+

@@ -2,6 +2,7 @@ import React from 'react';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
+import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: "AIzaSyB8CybzZByE7AMyTyyATPqRj2PtMvoR7eM",
@@ -39,7 +40,7 @@ class Firebase extends React.Component {
       this.setState({ user, loading: false });
     });
   }
-  
+
   // Métodos de autenticación
   iniciarSesion = (email, contrasenia) => {
     return auth.signInWithEmailAndPassword(email, contrasenia);
@@ -76,11 +77,11 @@ class Firebase extends React.Component {
   crearEnDB = (uid, tabla, data) => {
     const db = firebase.firestore();
     const docRef = db.collection(tabla).doc(uid);
-  
+
     return docRef.set(data)
       .then(() => {
-        console.log('Documento guardado correctamente en la colección', tabla, 'con id', uid);     
-        return uid;   
+        console.log('Documento guardado correctamente en la colección', tabla, 'con id', uid);
+        return uid;
       })
       .catch((error) => {
         console.error('Error al guardar el documento en la colección', tabla, 'con id', uid, ':', error);
@@ -91,7 +92,7 @@ class Firebase extends React.Component {
   crearEnDBSinUid = (tabla, data) => {
     const db = firebase.firestore();
     const collectionRef = db.collection(tabla);
-    
+
     return collectionRef.add(data)
       .then((docRef) => {
         const uid = docRef.id;
@@ -123,11 +124,10 @@ class Firebase extends React.Component {
   //uno: tabla = usuarios/1234AABH
   //en este ultimo caso traera solo el campo que haga match
   obtenerValorEnDB = (tabla, id = null) => {
-    
+
     let query = firestore.collection(tabla);
-    console.log("id:", id);
     if (id) {
-        query = query.doc(id);
+      query = query.doc(id);
     }
     return query.get()
       .then((snapshot) => {
@@ -151,7 +151,7 @@ class Firebase extends React.Component {
 
   obtenerValorPorUnCampoEspecifico = (tabla, campo, valor) => {
     let query = firestore.collection(tabla);
-  
+
     // Agregar las condiciones de búsqueda a la query
     /* for (let campo in condiciones) {
       console.log(campo);
@@ -159,7 +159,7 @@ class Firebase extends React.Component {
       }
     } */
     query = query.where(campo, "==", valor);
-  
+
     // Ejecutar la query y devolver los resultados
     return query.get()
       .then((querySnapshot) => {
@@ -203,32 +203,40 @@ class Firebase extends React.Component {
       });
   };
 
-  /* const actualizarEnDBSinUid = (tabla, campo, valor, data) => {
+  actualizarEnDBSinUid = (coleccion, campo, valor, datos) => {
     // Realiza una consulta para buscar el documento que deseas actualizar
-    return database.ref(tabla)
-      .orderByChild(campo)
-      .equalTo(valor)
-      .once('value')
-      .then((snapshot) => {
-        // Recorre los resultados de la consulta para obtener el uid del documento
-        let uid;
-        snapshot.forEach((childSnapshot) => {
-          uid = childSnapshot.key;
-        });
-
-        // Actualiza el documento usando el uid obtenido
-        if (uid) {
-          return actualizarEnDB(uid, tabla, data);
+    const query = firebase.firestore().collection(coleccion)
+      .where(campo, '==', valor)
+      .limit(1);
+  
+    // Ejecuta la consulta
+    return query.get()
+      .then((querySnapshot) => {
+        // Verifica si se encontró algún documento
+        if (!querySnapshot.empty) {
+          // Obtén la referencia al primer documento encontrado
+          const docRef = querySnapshot.docs[0].ref;
+  
+          // Actualiza el documento con los nuevos datos
+          return docRef.update(datos)
+            .then(() => {
+              console.log('Documento actualizado correctamente');
+              return true;
+            })
+            .catch((error) => {
+              console.error('Error al actualizar el documento:', error);
+              return false;
+            });
         } else {
-          console.error('No se encontró el documento a actualizar');
-          return null;
+          console.log('No se encontró ningún documento con el campo especificado');
+          return false;
         }
       })
       .catch((error) => {
-        console.error('Error al buscar el documento a actualizar:', error);
-        return null;
+        console.error('Error al realizar la consulta:', error);
+        return false;
       });
-  }; */
+  };
 
   borrarEnDB = (id, tabla) => {
     return firestore.collection(tabla).doc(id).delete();
@@ -236,19 +244,19 @@ class Firebase extends React.Component {
 
   obtenerCantidadFilas = (coleccion, campo, valor) => {
     return firebase.firestore()
-    .collection(coleccion)
-    .where(campo, '==', valor)
-    .get()
-    .then((querySnapshot) => querySnapshot.size);
+      .collection(coleccion)
+      .where(campo, '==', valor)
+      .get()
+      .then((querySnapshot) => querySnapshot.size);
   };
 
   obtenerPuestosEstacionamientoPorEstacionamiento = (idEstacionamiento) => {
     return firestore
-    .collection('puestosEstacionamientos')
-    .where('idEstacionamiento', '==', idEstacionamiento)
-    .get()
-    .then((querySnapshot) => {
-      const puestos = [];
+      .collection('puestosEstacionamientos')
+      .where('idEstacionamiento', '==', idEstacionamiento)
+      .get()
+      .then((querySnapshot) => {
+        const puestos = [];
         querySnapshot.forEach((doc) => {
           const puesto = {
             id: doc.id,
@@ -266,7 +274,7 @@ class Firebase extends React.Component {
 
   borrarDocumento = (coleccion, idDocumento) => {
     const documentoRef = firestore.collection(coleccion).doc(idDocumento);
-  
+
     return documentoRef.delete()
       .then(() => {
         console.log('Documento eliminado con éxito');
@@ -277,7 +285,30 @@ class Firebase extends React.Component {
         throw error;
       });
   };
-  
+
+  uploadImage = (file) => {
+    return new Promise((resolve, reject) => {
+      const storage = getStorage();
+      const storageRef = ref(storage, 'images/' + file.name);
+      const uploadTask = uploadBytes(storageRef, file);
+
+      uploadTask
+        .then((snapshot) => {
+          console.log('Imagen subida con éxito');
+          return getDownloadURL(snapshot.ref);
+        })
+        .then((downloadURL) => {
+          console.log('URL de descarga:', downloadURL);
+          resolve(downloadURL); // Resuelve la promesa con la URL de descarga
+        })
+        .catch((error) => {
+          console.error('Error al subir la imagen:', error);
+          reject(error); // Rechaza la promesa con el error
+        });
+    });
+  };
+
+
 }
 
 export default Firebase;

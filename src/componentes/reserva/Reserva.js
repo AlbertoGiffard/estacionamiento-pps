@@ -92,19 +92,10 @@ class Reserva extends Component {
             });
     };
 
-    actualizar = (evento) => {
+    static actualizar = (reserva) => {
         const firebase = new Firebase();
-        const { idReserva, vehiculo, fechaLlegada, fechaSalida, status, statusPago, descuento, total } = this.state;
-
-        firebase.actualizarEnDBSinUid('reservas', 'idReserva', idReserva, {
-            vehiculo,
-            fechaLlegada,
-            fechaSalida,
-            status,
-            statusPago,
-            descuento,
-            total
-        })
+        const { idReserva } = reserva;
+        return firebase.actualizarEnDBSinUid('reservas', 'idReserva', idReserva, reserva)
             .then(() => {
                 return true;
             })

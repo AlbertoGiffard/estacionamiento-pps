@@ -1,0 +1,14 @@
+.img-size{
+    width: 160px;
+}
+
+.custom-file-upload {
+    display: inline-block;
+    cursor: pointer;
+  }
+  
+  .custom-file-upload img {
+    width: 160px;
+    object-fit: cover;
+  }
+  

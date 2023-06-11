@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import { v4 as uuid } from 'uuid';
 import Firebase from '../firebase/Firebase';
 import PuestoEstacionamiento, { StatusPuesto } from '../puestoEstacionamiento/PuestoEstacionamiento';
-import { Map, GoogleApiWrapper } from 'google-maps-react';
-import { useState, useEffect } from "react";
 import Usuario, { Roles, StatusUsuario } from '../usuario/Usuario';
 
 

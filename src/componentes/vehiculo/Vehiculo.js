@@ -123,7 +123,7 @@ class Vehiculo extends Component {
     registrar = () => {
         const firebase = new Firebase();  
         
-        return firebase.crearEnDBSinUid("vehiculos", this.state)
+        return firebase.crearEnDB(this.state.idVehiculo, "vehiculos", this.state)
             .then(() => {
                 return Promise.resolve(true);
             })
@@ -135,16 +135,12 @@ class Vehiculo extends Component {
             });
     };
 
-    actualizar = () => {
+    static actualizar = (vehiculo) => {
         const firebase = new Firebase();
-        const {
-            id,
-            idVehiculo,
-            totalReservas,
-            status
-        } = this.state;
+        const {idVehiculo} = vehiculo;
+        console.log(vehiculo);
 
-        return firebase.actualizarEnDB(id, 'vehiculos', this.state)
+        return firebase.actualizarEnDB(idVehiculo, 'vehiculos', vehiculo)
             .then(() => {
                 return true;
             })

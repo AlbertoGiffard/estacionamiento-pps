@@ -1,9 +1,9 @@
 import './Inicio.css'
-import React, { Fragment } from 'react'
+import React from 'react'
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import GoogleMap from '../googleMap/GoogleMap';
 import AltaEstacionamiento from '../estacionamiento/forms/AltaEstacionamiento';
 import { Link } from 'react-router-dom';
+import Mapa from '../frontend/mapa/Mapa';
 
 function Inicio() {
     return (
@@ -81,7 +81,8 @@ function Inicio() {
                         </form>
                     </div>
                 </div>
-                <div className="container d-flex container-mapa justify-content-around text-center my-3">
+                <Mapa/>
+                {/* <div className="container d-flex container-mapa justify-content-around text-center my-3">
                     <div className="mapa py-3 pt-0 margin-right-md">
                         <GoogleMap />
                     </div>
@@ -89,7 +90,6 @@ function Inicio() {
                         <div className=''>
                             <div className="list-group scrolleable-list blur-bg">
                                 <div className="list-group-item list-group-item-action bg-transparent" aria-current="true">
-                                    {/* esto tiene que ser un componente separado de por si (item) al igual que el listado */}
                                     <Fragment>
                                         <div className="d-flex w-100 justify-content-between">
                                             <h5 className="mb-1">Nombre Estacionamiento</h5>
@@ -173,7 +173,7 @@ function Inicio() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> */}
                 <div className="container container-duenio">
                     <div className='display-1 margin-right margin-bottom-md'>
                         <span>

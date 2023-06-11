@@ -15,14 +15,18 @@ const MenuLateral = (props) => {
                     <i className="bi bi-car-front md-icon"></i> Vehiculos
                 </li>
             </Link>
-            <li className="list-group-item text-white fs-5"><i className="bi bi-geo-alt md-icon"></i> Mapa</li>
+            <Link to="/dashboard/mapa">
+                <li className="list-group-item text-white fs-5"><i className="bi bi-geo-alt md-icon"></i> Mapa</li>
+            </Link>
             <Link to="/dashboard/estacionamientos">
                 <li className="list-group-item text-white fs-6"><i className="bi bi-p-square md-icon"></i> Estacionamientos</li>
             </Link>
             <Link to="/dashboard/puestos">
                 <li className="list-group-item text-white fs-5"><i className="bi bi-bicycle md-icon"></i> Puestos</li>
             </Link>
-            <li className="list-group-item text-white fs-5"><i className="bi bi-person-square md-icon"></i> Mi Perfil</li>
+            <Link to="/dashboard/perfil">
+                <li className="list-group-item text-white fs-5"><i className="bi bi-person-square md-icon"></i> Mi Perfil</li>
+            </Link>
         </ul>
     )
 }

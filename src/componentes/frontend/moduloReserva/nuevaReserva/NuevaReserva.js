@@ -6,6 +6,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import Reserva, { StatusPago, StatusReserva } from '../../../reserva/Reserva';
 import Firebase from '../../../firebase/Firebase';
 import { StatusPuesto } from '../../../puestoEstacionamiento/PuestoEstacionamiento';
+import Vehiculo, { StatusVehiculo } from '../../../vehiculo/Vehiculo';
 
 const NuevaReserva = () => {
     const location = useLocation();
@@ -25,13 +26,15 @@ const NuevaReserva = () => {
         fechaSalida: "",
         status: StatusReserva.POR_CONFIRMAR,
         statusPago: StatusPago.POR_PAGAR,
+        datosTarjeta: {
+            titular: "",
+            numeroTarjeta: "",
+            vencimientoTarjeta: "",
+            codSeguridad: ""
+        },
         descuento: "",
         total: "",
         subTotal: "",
-        titular: "",
-        numeroTarjeta: "",
-        vencimientoTarjeta: "",
-        codSeguridad: ""
     });
     const [vehiculos, setVehiculos] = useState([]);
     const [estacionamientos, setEstacionamientos] = useState([]);
@@ -43,11 +46,20 @@ const NuevaReserva = () => {
         firebase.obtenerValorPorUnCampoEspecifico('vehiculos', 'usuario.email', userLocalStorage.email)
             .then((dataVehiculos) => {
                 //setVehiculos((datos) => ({ ...datos, vehiculos: vehiculos }));
-                setVehiculos(dataVehiculos);
                 if (dataVehiculos[0] === undefined) {
-                    setVehiculoSeleccionado(dataVehiculos);
+                    if (dataVehiculos.status === StatusVehiculo.ACTIVO) {
+                        setVehiculoSeleccionado(dataVehiculos);
+                        setVehiculos([dataVehiculos]);
+                    }
                 } else {
+                    let vehiculosArray = [];
+                    dataVehiculos.map((vehiculo) => {
+                        if (vehiculo.status === StatusVehiculo.ACTIVO) {
+                            vehiculosArray.push(vehiculo);
+                        }
+                    })
                     setVehiculoSeleccionado(dataVehiculos[0]);
+                    setVehiculos(vehiculosArray);
                 }
             })
             .catch((error) => {
@@ -66,7 +78,13 @@ const NuevaReserva = () => {
         setDatos((prevDatos) => ({
             ...prevDatos,
             tipo: 'Dia',
-            usuario: userLocalStorage.email
+            usuario: userLocalStorage.email,
+            datosTarjeta: {
+                titular: userLocalStorage.datosTarjeta.titular,
+                numeroTarjeta: userLocalStorage.datosTarjeta.numeroTarjeta,
+                vencimientoTarjeta: userLocalStorage.datosTarjeta?.vencimiento,
+                codSeguridad: userLocalStorage.datosTarjeta.codSeguridad
+            },
         }))
     }, [])
 
@@ -158,12 +176,14 @@ const NuevaReserva = () => {
     const handleTarjeta = () => {
         setDatos((prevDatos) => ({
             ...prevDatos,
-            titular: "Bruce Wayne",
-            numeroTarjeta: "12345678910",
-            vencimientoTarjeta: "2027-09-15",
-            codSeguridad: "123",
+            datosTarjeta: {
+                titular: "Bruce Wayne",
+                numeroTarjeta: "12345678910",
+                vencimientoTarjeta: "2027-09-15",
+                codSeguridad: "123",
+
+            },
             fechaLlegada: "2023-05-20",
-            fechaSalida: "2023-05-21",
         }))
     }
 
@@ -206,6 +226,12 @@ const NuevaReserva = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
+
+        if (vehiculoSeleccionado === null) {
+            alert('Tiene que tener al menos un auto activo');
+            navigate('/dashboard/vehiculos/nuevoVehiculo');
+            return;
+        }
 
         setDatos((prevDatos) => ({
             ...prevDatos,
@@ -251,16 +277,22 @@ const NuevaReserva = () => {
 
                 console.log(nuevaReserva);
 
-                const reservaComponent = new Reserva(nuevaReserva);
+                vehiculoSeleccionado.totalReservas = vehiculoSeleccionado.totalReservas + 1;
+                
+                Vehiculo.actualizar(vehiculoSeleccionado)
+                .then(() => {
+                    const reservaComponent = new Reserva(nuevaReserva);
+    
+                    reservaComponent.registrar()
+                        .then(() => {
+                            alert('Reserva creada exitosamente');
+                            navigate('/dashboard');
+                        })
+                        .catch((error) => {
+                            console.error("reserva", error);
+                        })
+                })
 
-                reservaComponent.registrar()
-                    .then(() => {
-                        alert('Reserva creada exitosamente');
-                        navigate('/dashboard');
-                    })
-                    .catch((error) => {
-                        console.error("reserva", error);
-                    })
             })
             .catch((error) => {
                 console.error("puesto", error);
@@ -387,18 +419,36 @@ const NuevaReserva = () => {
                                 <div className="box">
                                     <span>Tipo</span>
                                     <select className="form-select" onChange={handleChange} name='tipo'>
-                                        <option value="Dia">Dia</option>
-                                        <option value="Hora">Hora</option>
-                                        <option value="Mes">Mes</option>
+                                        {tipoReserva.map((opcion) => {
+                                            if (opcion.dia && opcion.hora && opcion.mes) {
+                                                return (
+                                                    <Fragment key="todos">
+                                                        <option value="Dia">Dia</option>
+                                                        <option value="Hora">Hora</option>
+                                                        <option value="Mes">Mes</option>
+                                                    </Fragment>
+                                                );
+                                            } else {
+                                                return (
+                                                    <Fragment key={Object.keys(opcion)[0]}>
+                                                        {opcion.dia && (
+                                                            <option value="Dia">Dia</option>
+                                                        )}
+                                                        {opcion.hora && (
+                                                            <option value="Hora">Hora</option>
+                                                        )}
+                                                        {opcion.mes && (
+                                                            <option value="Mes">Mes</option>
+                                                        )}
+                                                    </Fragment>
+                                                );
+                                            }
+                                        })}
                                     </select>
                                 </div>
                                 <div className="box d-flex flex-column justify-content-around">
                                     <span>Fecha Llegada</span>
                                     <input type="date" id='dateLlegada' onChange={handleChange} value={datos.fechaLlegada} name='fechaLlegada' />
-                                </div>
-                                <div className="box d-flex flex-column justify-content-around">
-                                    <span>Fecha Salida</span>
-                                    <input type="date" id='dateSalida' onChange={handleChange} value={datos.fechaSalida} name='fechaSalida' />
                                 </div>
                             </div>
                         </div>
@@ -413,19 +463,19 @@ const NuevaReserva = () => {
                             <div className="d-flex flex-row justify-content-around">
                                 <div className="box d-flex flex-column justify-content-around">
                                     <span>Titular</span>
-                                    <input type="text" onChange={handleChange} value={datos.titular} name='titular' />
+                                    <input type="text" onChange={handleChange} value={datos.datosTarjeta?.titular} name='datosTarjeta.titular' />
                                 </div>
                                 <div className="box d-flex flex-column justify-content-around">
                                     <span>Número</span>
-                                    <input type="text" onChange={handleChange} value={datos.numeroTarjeta} name='numeroTarjeta' />
+                                    <input type="text" onChange={handleChange} value={datos.datosTarjeta?.numeroTarjeta} name='datosTarjeta.numeroTarjeta' />
                                 </div>
                                 <div className="box d-flex flex-column justify-content-around">
                                     <span>Vencimiento</span>
-                                    <input type="Date" id='vencimientoTarjeta' onChange={handleChange} value={datos.vencimientoTarjeta} name='vencimientoTarjeta' />
+                                    <input type="Date" id='datosTarjeta.vencimientoTarjeta' onChange={handleChange} value={datos.datosTarjeta?.vencimientoTarjeta} name='datosTarjeta.vencimientoTarjeta' />
                                 </div>
                                 <div className="box d-flex flex-column justify-content-around">
                                     <span>Cod. Seguridad</span>
-                                    <input type="text" onChange={handleChange} name='codSeguridad' value={datos.codSeguridad} />
+                                    <input type="text" onChange={handleChange} name='datosTarjeta.codSeguridad' value={datos.datosTarjeta?.codSeguridad} />
                                 </div>
                             </div>
                         </div>

@@ -21,23 +21,23 @@ export const Roles = {
 //ver todas las demas clases
 class Usuario extends Component {
     constructor(props) {
-      super(props);
-      this.state = {
-        idUsuario: props.idUsuario,
-        nombre: props.nombre,
-        apellido: props.apellido,
-        dni: props.dni,
-        email: props.email,
-        contrasenia: props.contrasenia,
-        datosTarjeta: props.datosTarjeta,
-        telefono: props.telefono,
-        direccion: props.direccion,
-        rol: props.rol,
-        fechaAlta: new Date(),
-        foto: props.foto,
-        idEstacionamiento: props.idEstacionamiento,
-        status: props.status
-      };
+        super(props);
+        this.state = {
+            idUsuario: props.idUsuario,
+            nombre: props.nombre,
+            apellido: props.apellido,
+            dni: props.dni,
+            email: props.email,
+            contrasenia: props.contrasenia,
+            datosTarjeta: props.datosTarjeta,
+            telefono: props.telefono,
+            direccion: props.direccion,
+            rol: props.rol,
+            fechaAlta: new Date(),
+            foto: props.foto,
+            idEstacionamiento: props.idEstacionamiento,
+            status: props.status
+        };
     }
 
     //dependiendo de coomo venga este atributo lo definira con alguno de los roles previamente cargado
@@ -69,8 +69,8 @@ class Usuario extends Component {
             case 'activo':
                 this.setState({ status: StatusUsuario.ACTIVO });
                 break;
-                
-                case 'inactivo':
+
+            case 'inactivo':
                 this.setState({ status: StatusUsuario.INACTIVO });
                 break;
 
@@ -133,7 +133,7 @@ class Usuario extends Component {
     //el .then nos hará saber a donde se llame esta operacion si fue ok o no
     registrarse = () => {
 
-        const  {
+        const {
             idUsuario,
             nombre,
             apellido,
@@ -223,31 +223,13 @@ class Usuario extends Component {
             });
     }
 
-    actualizar = (evento) => {
-        evento.preventDefault();
+    static actualizar = (usuario) => {
         const firebase = new Firebase();
-        const {
-            idUsuario,
-            email,
-            contrasenia,
-            telefono,
-            direccion,
-            foto,
-            status,
-            datosTarjeta,
-        } = this.state;
+        const { idUsuario } = usuario;
 
-        firebase.actualizarEnDBSinUid('usuarios', 'idUsuario', idUsuario, {
-            email,
-            contrasenia,
-            datosTarjeta,
-            telefono,
-            direccion,
-            foto,
-            status
-        })
+        return firebase.actualizarEnDBSinUid('usuarios', 'idUsuario', idUsuario, usuario)
             .then(() => {
-                let resultado = true;
+                return true;
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -258,28 +240,28 @@ class Usuario extends Component {
 
     render() {
         const {
-          idUsuario,
-          nombre,
-          apellido,
-          dni,
-          email,
-          contrasenia,
-          datosTarjeta,
-          telefono,
-          direccion,
-          rol,
-          fechaAlta,
-          foto,
-          idEstacionamiento,
-          status
+            idUsuario,
+            nombre,
+            apellido,
+            dni,
+            email,
+            contrasenia,
+            datosTarjeta,
+            telefono,
+            direccion,
+            rol,
+            fechaAlta,
+            foto,
+            idEstacionamiento,
+            status
         } = this.state;
-    
+
         return (
-          <div>
-            {/* Render the component using the state values */}
-          </div>
+            <div>
+                {/* Render the component using the state values */}
+            </div>
         );
-      }
+    }
 }
 
 export default Usuario;

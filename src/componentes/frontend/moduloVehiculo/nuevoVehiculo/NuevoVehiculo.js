@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { v4 as uuid } from 'uuid';
 import Vehiculo, { StatusVehiculo } from '../../../vehiculo/Vehiculo';
 import Firebase from '../../../firebase/Firebase';
-import MenuLateral from '../../../utilitarios/menuLateral/MenuLateral';
 
 const NuevoVehiculo = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const userLocalStorage = JSON.parse(localStorage.getItem("userData"));
-    const [habilitado, setHabilitado] = useState(false);
     const [vehiculos, setVehiculos] = useState([]);
     const [datos, setDatos] = useState({
+        id: uuid(),
         idVehiculo: uuid(),
         usuario: userLocalStorage,
         marca: "",
@@ -25,6 +24,7 @@ const NuevoVehiculo = () => {
 
     useEffect(() => {
         const firebase = new Firebase();
+
         firebase.obtenerValorPorUnCampoEspecifico('vehiculos', 'usuario.email', userLocalStorage.email)
             .then((vehiculos) => {
                 let count = 0;
