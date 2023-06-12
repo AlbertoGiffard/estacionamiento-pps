@@ -14,7 +14,8 @@ export const StatusReserva = {
     POR_CONFIRMAR: 'POR_CONFIRMAR',
     CONFIRMADA: 'CONFIRMADA',
     CANCELADA: 'CANCELADA',
-    SIN_RESPUESTA: 'SIN_RESPUESTA'
+    SIN_RESPUESTA: 'SIN_RESPUESTA',
+    FINALIZADA: 'FINALIZADA'
 };
 
 export const StatusPago = {

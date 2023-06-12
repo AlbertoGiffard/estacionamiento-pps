@@ -51,35 +51,35 @@ const Mapa = () => {
             })
     }, [])
 
-    useEffect(() => {
-        console.log('direcciones', direcciones);
-        if (direcciones.length) {
-            geocodeDirecciones(direcciones);
-        }
-        console.log('puntos', puntos);
-    }, [direcciones])
-
-    useEffect(() => {
-        console.log('puntos', puntos);
-    }, [puntos])
-
-    const geocodeDirecciones = (direcciones) => {
-        const geocodePromises = direcciones.map((direccion) => {
-            return Geocode.fromAddress("Buenos Aires").then((response) => {
-                console.log(response.results);
-                const { lat, lng } = response.results[0].geometry.location;
-                return { direccion, lat, lng };
-            }).catch((error) => {
-                console.error('Error al geocodificar la dirección', direccion, error);
-                return null;
+    /*     useEffect(() => {
+            console.log('direcciones', direcciones);
+            if (direcciones.length) {
+                geocodeDirecciones(direcciones);
+            }
+            console.log('puntos', puntos);
+        }, [direcciones]) 
+    
+        useEffect(() => {
+            console.log('puntos', puntos);
+        }, [puntos])
+    
+        const geocodeDirecciones = (direcciones) => {
+            const geocodePromises = direcciones.map((direccion) => {
+                return Geocode.fromAddress("Buenos Aires").then((response) => {
+                    console.log(response.results);
+                    const { lat, lng } = response.results[0].geometry.location;
+                    return { direccion, lat, lng };
+                }).catch((error) => {
+                    console.error('Error al geocodificar la dirección', direccion, error);
+                    return null;
+                });
             });
-        });
-
-        Promise.all(geocodePromises).then((coordenadas) => {
-            const puntos = coordenadas.filter((coordenada) => coordenada !== null);
-            setPuntos(puntos);
-        });
-    };
+    
+            Promise.all(geocodePromises).then((coordenadas) => {
+                const puntos = coordenadas.filter((coordenada) => coordenada !== null);
+                setPuntos(puntos);
+            });
+        };*/
 
 
 
@@ -113,7 +113,14 @@ const Mapa = () => {
                             count++;
                         }
                     })
-                    estacionamiento.disponibilidad = count;
+                    // Actualizar el estado del estacionamiento con la disponibilidad calculada
+                    setEstacionamientos((estacionamientos) =>
+                        estacionamientos.map((est) =>
+                            est.idEstacionamiento === estacionamiento.idEstacionamiento
+                                ? { ...est, disponibilidad: count }
+                                : est
+                        )
+                    );
                 })
         } catch (error) {
             console.error('Error al obtener los puestos', error);
@@ -128,7 +135,7 @@ const Mapa = () => {
     return (
         <div className="container d-flex container-mapa justify-content-around text-center my-3">
             <div className="mapa py-3 pt-0 margin-right-md">
-                <GoogleMap puntos={puntos}/>
+                <GoogleMap puntos={puntos} />
             </div>
             <div>
                 <div className=''>

@@ -25,7 +25,7 @@ const GestionReserva = () => {
     const handleStatusCancelar = (status) => {
         let mostrarBtnCancelar = false;
 
-        if (status === 'POR_CONFIRMAR') {
+        if (status === StatusReserva.POR_CONFIRMAR) {
             mostrarBtnCancelar = true;
         }
 
@@ -35,11 +35,31 @@ const GestionReserva = () => {
     const handleStatusPagar = (status) => {
         let mostrarBtnPagar = false;
 
-        if (status === 'POR_CONFIRMAR') {
+        if (status === StatusPago.POR_PAGAR) {
             mostrarBtnPagar = true;
         }
 
         return mostrarBtnPagar;
+    }
+
+    const handleStatusConfirmar = (status) => {
+        let mostrarBtnConfirmar = false;
+
+        if (status === StatusReserva.POR_CONFIRMAR) {
+            mostrarBtnConfirmar = true;
+        }
+
+        return mostrarBtnConfirmar;
+    }
+
+    const handleStatusFinalizar = (statusReserva, statusPago) => {
+        let mostrarBtnFinalizar = false;
+
+        if (statusReserva === StatusReserva.CONFIRMADA && statusPago === StatusPago.PAGADA) {
+            mostrarBtnFinalizar = true;
+        }
+
+        return mostrarBtnFinalizar;
     }
 
     const actualizarLista = (reservaActualizada) => {
@@ -53,10 +73,10 @@ const GestionReserva = () => {
         setReservas(nuevasReservas);
     };
 
-    const handleSubmit = (reserva) => {
+    const handleSubmit = (reserva, statusPuesto, vehiculo = null) => {
         Reserva.actualizar(reserva)
         .then(() => {
-            actualizarPuesto(reserva)
+            actualizarPuesto(reserva, statusPuesto, vehiculo)
             .then(() => {
                 alert('Modificada la reserva correctamente');
                 console.log('exitazo');
@@ -102,16 +122,32 @@ const GestionReserva = () => {
 
 
         actualizarLista(reserva);
-        handleSubmit(reserva);
+        handleSubmit(reserva, false, reserva.vehiculo);
     }
 
-    const actualizarPuesto = (reserva) => {
+    const handleConfirmar = (reserva) => {
+        reserva.status = StatusReserva.CONFIRMADA;
+
+        actualizarLista(reserva);
+        handleSubmit(reserva, StatusPuesto.OCUPADO, reserva.vehiculo);
+    }
+
+    const handleFinalizada = (reserva) => {
+        reserva.status = StatusReserva.FINALIZADA;
+
+        actualizarLista(reserva);
+        handleSubmit(reserva, StatusPuesto.LIBRE);
+    }
+
+    const actualizarPuesto = (reserva, statusPuesto, vehiculo = null) => {
         const firebase = new Firebase();
 
         return firebase.obtenerValorPorUnCampoEspecifico('puestosEstacionamientos', 'vehiculo.idVehiculo', reserva.vehiculo.idVehiculo)
         .then((puesto) => {
-            puesto.vehiculo = null;
-            puesto.status = StatusPuesto.LIBRE;
+            puesto.vehiculo = vehiculo;
+            if (statusPuesto !== false) {
+                puesto.status = statusPuesto;                
+            }
 
             PuestoEstacionamiento.actualizar(puesto)
             .then(() => {
@@ -126,7 +162,7 @@ const GestionReserva = () => {
         reserva.total = reserva.total + (reserva.descuento * reserva.total / 100);;
 
         actualizarLista(reserva);
-        handleSubmit(reserva);
+        handleSubmit(reserva, StatusPuesto.LIBRE);
     }
 
     return (
@@ -159,9 +195,25 @@ const GestionReserva = () => {
                                             <td>
                                                 <div className="flex justify-content-around flex-wrap">
                                                     {
-                                                        handleStatusPagar(reserva.status) ? (
-                                                            <button className="btn btn-primary" title='Pagar reserva' onClick={() => handlePagar(reserva)}>
+                                                        handleStatusConfirmar(reserva.status) ? (
+                                                            <button className="btn btn-success" title='Confirmar reserva' onClick={() => handleConfirmar(reserva)}>
+                                                                <i className="bi bi-check-circle"></i>
+                                                            </button>
+                                                        )
+                                                            : null
+                                                    }
+                                                    {
+                                                        handleStatusPagar(reserva.statusPago) ? (
+                                                            <button className="btn btn-primary ml-5" title='Pagar reserva' onClick={() => handlePagar(reserva)}>
                                                                 <i className="bi bi-credit-card"></i>
+                                                            </button>
+                                                        )
+                                                            : null
+                                                    }
+                                                    {
+                                                        handleStatusFinalizar(reserva.status, reserva.statusPago) ? (
+                                                            <button className="btn btn-success ml-5" title='Finalizar reserva' onClick={() => handleFinalizada(reserva)}>
+                                                                <i className="bi bi-car-front"></i>
                                                             </button>
                                                         )
                                                             : null
