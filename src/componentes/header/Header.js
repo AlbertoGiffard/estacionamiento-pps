@@ -1,28 +1,33 @@
 import './Header.css';
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Firebase from '../firebase/Firebase';
 
+const firebase = new Firebase();
+
 const Header = () => {
-    const firebase = new Firebase();
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const unsubscribe = firebase.state.auth.onAuthStateChanged((user) => {
-            setUser(user);
-            console.log('header',user);
+        const unsubscribe = firebase.state.auth.onAuthStateChanged((userChange) => {
+            const userLocalStorage = JSON.parse(localStorage.getItem("userData"));
+
+            if (userLocalStorage === null) {
+                setUser(userChange);
+                console.log('header', userChange);                
+            }
         });
 
         // Clean up the listener when the component unmounts
         return () => {
             unsubscribe();
         };
-    }, [firebase.state.auth]);
+    }, []);
 
     const signOut = () => {
+        localStorage.removeItem('userData');
         firebase.cerrarSesion().then(() => {
-            localStorage.removeItem('userData');
             navigate('/');
         })
     }

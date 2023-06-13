@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { v4 as uuid } from 'uuid';
 import Estacionamiento, { StatusEstacionamiento } from '../../../estacionamiento/Estacionamiento';
 
 const NuevoEstacionamiento = () => {

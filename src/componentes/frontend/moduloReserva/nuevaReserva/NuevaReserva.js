@@ -45,6 +45,11 @@ const NuevaReserva = () => {
         const firebase = new Firebase();
         firebase.obtenerValorPorUnCampoEspecifico('vehiculos', 'usuario.email', userLocalStorage.email)
             .then((dataVehiculos) => {
+                if (dataVehiculos === null) {
+                    alert('Necesita un vehiculo activo para generar una nueva reserva');
+                    navigate('/dashboard');
+                    return;
+                }
                 //setVehiculos((datos) => ({ ...datos, vehiculos: vehiculos }));
                 if (dataVehiculos[0] === undefined) {
                     if (dataVehiculos.status === StatusVehiculo.ACTIVO) {
@@ -80,10 +85,10 @@ const NuevaReserva = () => {
             tipo: 'Dia',
             usuario: userLocalStorage.email,
             datosTarjeta: {
-                titular: userLocalStorage.datosTarjeta.titular,
-                numeroTarjeta: userLocalStorage.datosTarjeta.numeroTarjeta,
+                titular: userLocalStorage.datosTarjeta?.titular,
+                numeroTarjeta: userLocalStorage.datosTarjeta?.numeroTarjeta,
                 vencimientoTarjeta: userLocalStorage.datosTarjeta?.vencimiento,
-                codSeguridad: userLocalStorage.datosTarjeta.codSeguridad
+                codSeguridad: userLocalStorage.datosTarjeta?.codSeguridad
             },
         }))
     }, [])
@@ -337,7 +342,7 @@ const NuevaReserva = () => {
                             </span>
                             <div className="d-flex flex-row justify-content-around">
                                 <div className="box">
-                                    <span>Modelo</span>
+                                    <span className='fs-5 text-break'>Modelo</span>
                                     <select className="form-select" onChange={handleChangeVehiculo} value={vehiculoSeleccionado?.modelo} name='modelo'>
                                         {vehiculos.map((vehiculo) => {
                                             return (
@@ -348,7 +353,7 @@ const NuevaReserva = () => {
                                     </select>
                                 </div>
                                 <div className="box">
-                                    <span>Marca</span>
+                                    <span className='fs-5 text-break'>Marca</span>
                                     <select className="form-select" onChange={handleChangeVehiculo} value={vehiculoSeleccionado?.marca} name='marca'>
                                         {vehiculos.map((vehiculo) => {
                                             return (
@@ -359,7 +364,7 @@ const NuevaReserva = () => {
                                     </select>
                                 </div>
                                 <div className="box">
-                                    <span>Patente</span>
+                                    <span className='fs-5 text-break'>Patente</span>
                                     <select className="form-select" onChange={handleChangeVehiculo} value={vehiculoSeleccionado?.patente} name='patente'>
                                         {vehiculos.map((vehiculo) => {
                                             return (
@@ -370,7 +375,7 @@ const NuevaReserva = () => {
                                     </select>
                                 </div>
                                 <div className="box">
-                                    <span>Tipo</span>
+                                    <span className='fs-5 text-break'>Tipo</span>
                                     <select className="form-select" onChange={handleChangeVehiculo} value={vehiculoSeleccionado?.tipo} name='tipo'>
                                         {vehiculos.map((vehiculo) => {
                                             return (
@@ -389,7 +394,7 @@ const NuevaReserva = () => {
                             </span>
                             <div className="d-flex flex-row justify-content-around">
                                 <div className="box">
-                                    <span>Nombre Estacionamiento</span>
+                                    <span className='fs-5 text-break'>Nombre Estacionamiento</span>
                                     <select className="form-select" onChange={handleChangeEstacionamiento} value={estacionamientoSeleccionado?.nombreEstacionamiento} name='nombreEstacionamiento'>
                                         {estacionamientos.map((estacionamiento) => {
                                             return (
@@ -399,7 +404,7 @@ const NuevaReserva = () => {
                                     </select>
                                 </div>
                                 <div className="box">
-                                    <span>Dirección</span>
+                                    <span className='fs-5 text-break'>Dirección</span>
                                     <select className="form-select" onChange={handleChangeEstacionamiento} value={estacionamientoSeleccionado?.direccionEstacionamiento} name='direccionEstacionamiento'>
                                         {estacionamientos.map((estacionamiento) => {
                                             return (
@@ -417,7 +422,7 @@ const NuevaReserva = () => {
                             </span>
                             <div className="d-flex flex-row justify-content-around">
                                 <div className="box">
-                                    <span>Tipo</span>
+                                    <span className='fs-5 text-break'>Tipo</span>
                                     <select className="form-select" onChange={handleChange} name='tipo'>
                                         {tipoReserva.map((opcion) => {
                                             if (opcion.dia && opcion.hora && opcion.mes) {
@@ -447,7 +452,7 @@ const NuevaReserva = () => {
                                     </select>
                                 </div>
                                 <div className="box d-flex flex-column justify-content-around">
-                                    <span>Fecha Llegada</span>
+                                    <span className='fs-5 text-break'>Fecha Llegada</span>
                                     <input type="date" id='dateLlegada' onChange={handleChange} value={datos.fechaLlegada} name='fechaLlegada' />
                                 </div>
                             </div>
@@ -462,20 +467,20 @@ const NuevaReserva = () => {
                             </div>
                             <div className="d-flex flex-row justify-content-around">
                                 <div className="box d-flex flex-column justify-content-around">
-                                    <span>Titular</span>
-                                    <input type="text" onChange={handleChange} value={datos.datosTarjeta?.titular} name='datosTarjeta.titular' />
+                                    <span className='fs-5 text-break'>Titular</span>
+                                    <input className='form-control' type="text" onChange={handleChange} value={datos.datosTarjeta?.titular} name='datosTarjeta.titular' />
                                 </div>
                                 <div className="box d-flex flex-column justify-content-around">
-                                    <span>Número</span>
-                                    <input type="text" onChange={handleChange} value={datos.datosTarjeta?.numeroTarjeta} name='datosTarjeta.numeroTarjeta' />
+                                    <span className='fs-5 text-break'>Número</span>
+                                    <input className='form-control' type="text" onChange={handleChange} value={datos.datosTarjeta?.numeroTarjeta} name='datosTarjeta.numeroTarjeta' />
                                 </div>
                                 <div className="box d-flex flex-column justify-content-around">
-                                    <span>Vencimiento</span>
-                                    <input type="Date" id='datosTarjeta.vencimientoTarjeta' onChange={handleChange} value={datos.datosTarjeta?.vencimientoTarjeta} name='datosTarjeta.vencimientoTarjeta' />
+                                    <span className='fs-5 text-break'>Vencimiento</span>
+                                    <input className='form-control' type="Date" id='datosTarjeta.vencimientoTarjeta' onChange={handleChange} value={datos.datosTarjeta?.vencimientoTarjeta} name='datosTarjeta.vencimientoTarjeta' />
                                 </div>
                                 <div className="box d-flex flex-column justify-content-around">
-                                    <span>Cod. Seguridad</span>
-                                    <input type="text" onChange={handleChange} name='datosTarjeta.codSeguridad' value={datos.datosTarjeta?.codSeguridad} />
+                                    <span className='fs-5 text-break'>Cod. Seguridad</span>
+                                    <input className='form-control' type="text" onChange={handleChange} name='datosTarjeta.codSeguridad' value={datos.datosTarjeta?.codSeguridad} />
                                 </div>
                             </div>
                         </div>

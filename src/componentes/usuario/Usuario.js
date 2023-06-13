@@ -17,6 +17,8 @@ export const Roles = {
     CLIENTE: 'CLIENTE'
 };
 
+const firebaseRegistro = new Firebase();
+
 //esto debe ser el extend Component
 //ver todas las demas clases
 class Usuario extends Component {
@@ -132,41 +134,35 @@ class Usuario extends Component {
     //realiza el registro de nuevos usuarios y los carga a la base de datos
     //el .then nos hará saber a donde se llame esta operacion si fue ok o no
     registrarse = () => {
-
+        this.state.idUsuario = uuid();
+        if (this.state.datosTarjeta === undefined) {
+            this.state.datosTarjeta = null;
+        }
+        if (this.state.foto === undefined) {
+            this.state.foto = null;
+        }
         const {
-            idUsuario,
-            nombre,
-            apellido,
-            dni,
             email,
             contrasenia,
-            telefono,
-            direccion,
-            rol,
-            fechaAlta,
-            foto,
-            idEstacionamiento,
-            status,
-            datosTarjeta,
         } = this.state;
-        const firebase = new Firebase();
 
-        if (firebase.verificarMail(email)) {
-            return firebase.registrarse(email, contrasenia)
+
+        if (firebaseRegistro.verificarMail(email)) {
+            return firebaseRegistro.registrarse(email, contrasenia)
                 .then((userCredential) => {
                     const user = userCredential.user;
                     const uid = user.uid;
 
-                    return firebase.crearEnDB(uid, 'usuarios', this.state);
+                    return firebaseRegistro.crearEnDB(uid, 'usuarios', this.state)
+                    .then((uid) => {
+                        console.log('Usuario registrado correctamente con uid', uid);
+                        // hacer algo con el uid devuelto, como redirigir a una página de inicio
+                        return uid;
+                    })
+                    .catch((error) => {
+                        console.error('Error al registrar usuario:', error);
+                    });
                 })
-                .then((uid) => {
-                    console.log('Usuario registrado correctamente con uid', uid);
-                    // hacer algo con el uid devuelto, como redirigir a una página de inicio
-                    return uid;
-                })
-                .catch((error) => {
-                    console.error('Error al registrar usuario:', error);
-                });
         } else {
             return Promise.resolve(false);
         }

@@ -39,6 +39,10 @@ class Firebase extends React.Component {
     firebase.auth().onAuthStateChanged(user => {
       this.setState({ user, loading: false });
     });
+
+    this.props.auth.onAuthStateChanged(user => {
+      this.setState({ user, loading: false });
+    });
   }
 
   // Métodos de autenticación
@@ -47,7 +51,7 @@ class Firebase extends React.Component {
   };
   //verifica si existe el mail o no
   verificarMail = (email) => {
-    /* return auth.fetchSignInMethodsForEmail(email)
+    return auth.fetchSignInMethodsForEmail(email)
       .then((signInMethods) => {
         if (signInMethods && signInMethods.length > 0) {
           // El correo electrónico ya está en uso
@@ -61,7 +65,7 @@ class Firebase extends React.Component {
         console.error(error);
         // Error al validar el correo electrónico
         return false;
-      }); */
+      });
   }
 
   registrarse = (email, contrasenia) => {

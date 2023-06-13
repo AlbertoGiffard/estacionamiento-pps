@@ -29,7 +29,7 @@ const NuevoVehiculo = () => {
             .then((vehiculos) => {
                 let count = 0;
                 //setVehiculos((datos) => ({ ...datos, vehiculos: vehiculos }));
-                if (vehiculos[0] !== undefined) {
+                if (vehiculos != null && vehiculos[0] !== undefined) {
                     setVehiculos([vehiculos]);
 
                     //setea si el status sera activo o inactivo
@@ -91,25 +91,25 @@ const NuevoVehiculo = () => {
                         <div className="col-md-12 mb-3">
                             <div className="d-flex flex-row justify-content-around row">
                                 <div className="box d-flex flex-column justify-content-around col-md-6">
-                                    <span>
+                                    <span className='fs-5 text-break'>
                                         Marca
                                     </span>
-                                    <input type="text" onChange={handleChange} value={datos.marca} name='marca' />
+                                    <input className='form-control' type="text" onChange={handleChange} value={datos.marca} name='marca' />
                                 </div>
                                 <div className="box d-flex flex-column justify-content-around col-md-6">
-                                    <span>
+                                    <span className='fs-5 text-break'>
                                         Modelo
                                     </span>
-                                    <input type="text" onChange={handleChange} value={datos.modelo} name='modelo' />
+                                    <input className='form-control' type="text" onChange={handleChange} value={datos.modelo} name='modelo' />
                                 </div>
                                 <div className="box d-flex flex-column justify-content-around col-md-6">
-                                    <span>
+                                    <span className='fs-5 text-break'>
                                         Patente
                                     </span>
-                                    <input type="text" onChange={handleChange} value={datos.patente} name='patente' />
+                                    <input className='form-control' type="text" onChange={handleChange} value={datos.patente} name='patente' />
                                 </div>
                                 <div className="box d-flex flex-column justify-content-around col-md-6">
-                                    <span>
+                                    <span className='fs-5 text-break'>
                                         Tipo
                                     </span>
                                     <select className="form-select" onChange={handleChange} name='tipo' value={datos.tipo}>
@@ -120,10 +120,10 @@ const NuevoVehiculo = () => {
                                     </select>
                                 </div>
                                 <div className="box d-flex flex-column justify-content-around col-md-6">
-                                    <span>
+                                    <span className='fs-5 text-break'>
                                         Color
                                     </span>
-                                    <input type="text" onChange={handleChange} name='color' value={datos.color} />
+                                    <input className='form-control' type="text" onChange={handleChange} name='color' value={datos.color} />
                                 </div>
                             </div>
                         </div>

@@ -8,13 +8,13 @@ const MenuVehiculo = (props) => {
     const userLocalStorage = JSON.parse(localStorage.getItem("userData"));
     const { user } = props;
 
-    useEffect(() => {
+/*     useEffect(() => {
 
         if (userLocalStorage.rol === Roles.DUENIO || userLocalStorage.rol === Roles.EMPLEADO) {
             alert('Solo los clientes pueden ingresar');
             navigate('/dashboard');
         }
-    }, [])
+    }, []) */
     
 
     return (

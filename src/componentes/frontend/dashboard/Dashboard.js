@@ -17,6 +17,9 @@ import NuevoPuestos from '../moduloPuestos/nuevoPuestos/NuevoPuestos';
 import GestionPuestos from '../moduloPuestos/gestionPuestos/GestionPuestos';
 import Perfil from '../perfil/Perfil';
 import Mapa from '../mapa/Mapa';
+import MenuTrabajadores from '../moduloTrabajadores/menuTrabajadores/MenuTrabajadores';
+import NuevoTrabajador from '../moduloTrabajadores/nuevoTrabajador/NuevoTrabajador';
+import GestionTrabajadores from '../moduloTrabajadores/gestionTrabajadores/GestionTrabajadores';
 
 const Dashboard = () => {
     const location = useLocation();
@@ -57,6 +60,9 @@ const Dashboard = () => {
                     <Route path="/estacionamientos" element={<MenuEstacionamiento user={userData} />} />
                     <Route path="/estacionamientos/nuevoEstacionamiento" element={<NuevoEstacionamiento user={userData} />} />
                     <Route path="/estacionamientos/gestionEstacionamiento" element={<GestionEstacionamiento user={userData} />} />
+                    <Route path="/trabajadores" element={<MenuTrabajadores user={userData} />} />
+                    <Route path="/trabajadores/nuevoTrabajador" element={<NuevoTrabajador user={userData} />} />
+                    <Route path="/trabajadores/gestionTrabajador" element={<GestionTrabajadores user={userData} />} />
                     <Route path="/puestos" element={<MenuPuestos user={userData} />} />
                     <Route path="/puestos/nuevoPuesto" element={<NuevoPuestos user={userData} />} />
                     <Route path="/puestos/gestionPuesto" element={<GestionPuestos user={userData} />} />

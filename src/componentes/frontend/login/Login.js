@@ -1,7 +1,8 @@
-import { Link,useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Login.css';
 import React, { Fragment, useState } from 'react';
 import Firebase from '../../firebase/Firebase';
+import { StatusUsuario } from '../../usuario/Usuario';
 
 const Login = () => {
     const [datos, setDatos] = useState({
@@ -19,17 +20,43 @@ const Login = () => {
         });
     };
 
+    const validarUsuarioActivo = () => {
+        const firebase = new Firebase();
+
+        return firebase.buscarDocumentoPorCampo('usuarios', 'email', datos.email)
+            .then((dataUsuario) => {
+                if (dataUsuario[0] === null || dataUsuario[0].status !== StatusUsuario.ACTIVO) {
+                    alert('Error: Su cuenta no se encuentra activa regularice su situación');
+                    return false;
+                }
+                return true;
+            })
+            .catch((error) => {
+                console.error(error);
+            })
+    }
+
     const handleSubmit = (event) => {
         event.preventDefault();
-        const firebase = new Firebase();
-        firebase.iniciarSesion(datos.email, datos.contrasenia).then(() => {
-            console.log("todo un exito");
-            navigate('/dashboard/', { state: { email: datos.email } });
-        })
-        .catch((error) => {
-            console.error("error inicio sesion " + error);
-            alert("error inicio sesion " + error);
-        })
+
+        validarUsuarioActivo()
+            .then((usuarioActivo) => {
+                if (usuarioActivo) {
+                    const firebase = new Firebase();
+                    firebase.iniciarSesion(datos.email, datos.contrasenia)
+                        .then(() => {
+                            console.log("todo un exito");
+                            navigate('/dashboard/', { state: { email: datos.email } });
+                        })
+                        .catch((error) => {
+                            console.error("error inicio sesion " + error);
+                            alert("error inicio sesion " + error);
+                        });
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
     };
 
     return (

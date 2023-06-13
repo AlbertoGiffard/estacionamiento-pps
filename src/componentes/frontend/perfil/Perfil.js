@@ -157,11 +157,11 @@ const Perfil = () => {
                 <div className="row">
                     <div className="col-md-4 mb-3">
                         <label htmlFor="nombre" className="fs-4">Nombre</label>
-                        <input type="text" className="form-control" id="nombre" name="nombre" placeholder="Junior" value={datos.nombre} disabled />
+                        <input type="text" className="form-control" id="nombre" name="nombre" value={datos.nombre} disabled />
                     </div>
                     <div className="col-md-4 mb-3">
                         <label htmlFor="apellido" className="fs-4">Apellido</label>
-                        <input type="text" className="form-control" id="apellido" name="apellido" placeholder="Prueba" value={datos.apellido} disabled />
+                        <input type="text" className="form-control" id="apellido" name="apellido" value={datos.apellido} disabled />
                     </div>
                     <div className="col-md-4 mb-3">
                         <label htmlFor="dniCliente" className="fs-4">DNI</label>
