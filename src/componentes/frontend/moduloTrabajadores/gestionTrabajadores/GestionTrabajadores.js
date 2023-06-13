@@ -53,8 +53,9 @@ const GestionTrabajadores = () => {
 
         return firebase.buscarDocumentoPorCampo('usuarios', 'idEstacionamiento', idEstacionamiento)
             .then((dataTrabajadores) => {
-                setTrabajadores(dataTrabajadores);
-                console.log(dataTrabajadores);
+                let arrayTrabajadores = dataTrabajadores.filter((trabajador) => trabajador.email !== userLocalStorage.email);
+                setTrabajadores(arrayTrabajadores);
+                console.log(arrayTrabajadores);
             })
             .catch((error) => {
                 console.error(error);
@@ -151,6 +152,20 @@ const GestionTrabajadores = () => {
         setTrabajadores(trabajadoresCopia);
     };
 
+    const handleChangeEstacionamiento = (event) => {
+        const estacionamientoSeleccionado = estacionamientos.find(
+            (estacionamiento) => estacionamiento.nombreEstacionamiento === event.target.value
+        );
+
+        setEstacionamientoSeleccionado(estacionamientoSeleccionado);
+        setDatos((datos) => ({
+            ...datos,
+            idEstacionamiento: estacionamientoSeleccionado.idEstacionamiento,
+            nombreEstacionamiento: estacionamientoSeleccionado.nombreEstacionamiento,
+        }));
+        buscarTrabajadores(estacionamientoSeleccionado.idEstacionamiento);
+    };
+
 
     return (
         <div className='container-dashboard h-100'>
@@ -161,7 +176,7 @@ const GestionTrabajadores = () => {
                     </span>
                 </div>
                 <div>
-                    <select className="form-select" onChange={handleChange} name='estacionamiento' value={datos.nombreEstacionamiento}>
+                    <select className="form-select" onChange={handleChangeEstacionamiento} name='estacionamiento' value={datos.nombreEstacionamiento}>
                         {estacionamientos.map((estacionamiento) => {
                             return (
                                 <option key={estacionamiento.idEstacionamiento} value={estacionamiento.nombreEstacionamiento} className='form-control'>{estacionamiento.nombreEstacionamiento}</option>
@@ -186,7 +201,7 @@ const GestionTrabajadores = () => {
                     <tbody>
                         {
                             trabajadores.length ?
-                            trabajadores.map((trabajador, index) => {
+                                trabajadores.map((trabajador, index) => {
                                     return (
                                         <tr key={trabajador.idUsuario} className='text-center'>
                                             <th scope="row">{index + 1}</th>
