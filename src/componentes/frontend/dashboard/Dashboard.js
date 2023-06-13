@@ -20,6 +20,7 @@ import Mapa from '../mapa/Mapa';
 import MenuTrabajadores from '../moduloTrabajadores/menuTrabajadores/MenuTrabajadores';
 import NuevoTrabajador from '../moduloTrabajadores/nuevoTrabajador/NuevoTrabajador';
 import GestionTrabajadores from '../moduloTrabajadores/gestionTrabajadores/GestionTrabajadores';
+import GestionReservaTrabajadores from '../moduloReserva/gestionReservaTrabajadores/GestionReservaTrabajadores';
 
 const Dashboard = () => {
     const location = useLocation();
@@ -51,7 +52,7 @@ const Dashboard = () => {
             <div className="col-md-2 bg-list">
                 <MenuLateral />
             </div>
-            <div className="container col-md-9">
+            <div className="container col-md-9 pt-3">
                 <Routes path="/dashboard/*">
                     <Route path="/" element={<MenuReserva user={userData} />} />
                     <Route path="/vehiculos" element={<MenuVehiculo user={userData} />} />
@@ -68,6 +69,7 @@ const Dashboard = () => {
                     <Route path="/puestos/gestionPuesto" element={<GestionPuestos user={userData} />} />
                     <Route path="/nuevaReserva" element={<NuevaReserva user={userData} />} />
                     <Route path="/gestionReserva" element={<GestionReserva user={userData} />} />
+                    <Route path="/gestionReservaTrabajadores" element={<GestionReservaTrabajadores user={userData} />} />
                     <Route path="/perfil" element={<Perfil user={userData} />} />
                     <Route path="/mapa" element={<Mapa user={userData} />} />
                 </Routes>

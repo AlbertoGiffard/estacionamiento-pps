@@ -167,7 +167,7 @@ const GestionEstacionamiento = () => {
                                                     onChange={(event) => handleChange(event, index)}
                                                     value={estacionamiento.montoHora}
                                                     name='montoHora'
-                                                    placeholder='15'
+                                                    
                                                 />
                                             </td>
                                             <td>
@@ -177,7 +177,7 @@ const GestionEstacionamiento = () => {
                                                     onChange={(event) => handleChange(event, index)}
                                                     value={estacionamiento.montoDia}
                                                     name='montoDia'
-                                                    placeholder='15'
+                                                    
                                                 />
                                             </td>
                                             <td>
@@ -187,7 +187,7 @@ const GestionEstacionamiento = () => {
                                                     onChange={(event) => handleChange(event, index)}
                                                     value={estacionamiento.montoMes}
                                                     name='montoMes'
-                                                    placeholder='15'
+                                                    
                                                 />
                                             </td>
                                             <td>
@@ -197,7 +197,7 @@ const GestionEstacionamiento = () => {
                                                     onChange={(event) => handleChange(event, index)}
                                                     value={estacionamiento.descuentoHora}
                                                     name='descuentoHora'
-                                                    placeholder='15'
+                                                    
                                                 />
                                             </td>
                                             <td>
@@ -207,7 +207,7 @@ const GestionEstacionamiento = () => {
                                                     onChange={(event) => handleChange(event, index)}
                                                     value={estacionamiento.descuentoDia}
                                                     name='descuentoDia'
-                                                    placeholder='15'
+                                                    
                                                 />
                                             </td>
                                             <td>
@@ -217,7 +217,7 @@ const GestionEstacionamiento = () => {
                                                     onChange={(event) => handleChange(event, index)}
                                                     value={estacionamiento.descuentoDia}
                                                     name='descuentoDia'
-                                                    placeholder='15'
+                                                    
                                                 />
                                             </td>
                                             <td>

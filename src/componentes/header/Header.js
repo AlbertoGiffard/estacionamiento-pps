@@ -12,10 +12,9 @@ const Header = () => {
     useEffect(() => {
         const unsubscribe = firebase.state.auth.onAuthStateChanged((userChange) => {
             const userLocalStorage = JSON.parse(localStorage.getItem("userData"));
-
-            if (userLocalStorage === null) {
+             
+            if (userLocalStorage === null || userChange.email === userLocalStorage.email) {
                 setUser(userChange);
-                console.log('header', userChange);                
             }
         });
 
@@ -23,7 +22,7 @@ const Header = () => {
         return () => {
             unsubscribe();
         };
-    }, []);
+    }, [firebase.state.auth]);
 
     const signOut = () => {
         localStorage.removeItem('userData');
